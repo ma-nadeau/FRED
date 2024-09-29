@@ -79,3 +79,10 @@ Successfully starting the backend looks like this:
 
 ## Environment variables
 The frontend and backend each have their own environment variables. The .env.example files in each directory contain the variables that need to be set. Copy the .env.example file to a new file called .env and set the variables.
+
+### Documentation to read
+
+- [Prisma](https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases-typescript-postgresql)
+- [NestJS](https://docs.nestjs.com/)
+- [TailwindCSS](https://tailwindcss.com/docs/installation)
+- [NextJS](https://nextjs.org/docs)
