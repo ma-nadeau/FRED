@@ -1,0 +1,17 @@
+{
+  "name": "fred",
+  "private": true,
+  "contributors": [
+    "Marc-Antoine Nadeau, 261114549, marc-antoine.nadeau@mail.mcgill.ca",
+    "Omar Moussa, 260775585, omar.moussa@mail.mcgill.ca",
+    "Tiffany Miller, 261113912, tiffany.miller@mail.mcgill.ca",
+    "Sebastian Reinhardt, 260309694, sebastian.reinhardt@mail.mcgill.ca",
+    "Alice Godbout, 261119080, alice.godbout@mail.mcgill.ca",
+    "Philippe Marchand, 261051832, philippe.marchand2@mail.mcgill.ca",
+    "Achraf Ghellach, 261102777, achraf.ghellach@mail.mcgill.ca",
+    "Pei Yan Geng, 261115064, pei.geng@mail.mcgill.ca",
+    "Philippe Aprahamian, 261073161, philippe.aprahamian@mail.mcgill.ca",
+    "Nafis Rahman, 260889422, nafis.rahman@mail.mcgill.ca"
+  ],
+  "packageManager": "pnpm@9.9.0"
+}
