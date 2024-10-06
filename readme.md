@@ -82,6 +82,7 @@ The frontend and backend each have their own environment variables. The .env.exa
 
 ### Documentation to read
 
+
 - [Prisma](https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases-typescript-postgresql)
 - [NestJS](https://docs.nestjs.com/)
 - [TailwindCSS](https://tailwindcss.com/docs/installation)
