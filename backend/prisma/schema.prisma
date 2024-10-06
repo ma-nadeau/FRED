@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,12 +7,126 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id          String   @id @default(uuid())
-  username    String    @unique
-  email       String    @unique
-  password    String
-  createdAt   DateTime  @default(now()) 
-  updatedAt   DateTime  @updatedAt
+  id             Int        @id @default(autoincrement())
+  name           String
+  email          String     @unique
+  age            Int
+  accounts       MainAccount[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  recommendations FinanceRecommendation[]
+}
+
+model MainAccount {
+  id             Int        @id @default(autoincrement())
+  userId         Int
+  type           MainAccountType
+  accountId      Int
+  institution    String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankAccount    BankAccount?   @relation(fields: [accountId], references: [id], onDelete: Cascade, map: "MainAccount_bankAccount_fkey")
+  tradingAccount TradingAccount?  @relation(fields: [accountId], references: [id], onDelete: Cascade, map: "MainAccount_tradingAccount_fkey")
+}
+
+enum MainAccountType {
+  BANK
+  TRADING
+}
+
+model BankAccount {
+  id             Int        @id @default(autoincrement())
+  type           AccountType
+  name           String
+  balance        Float      @default(0.0)
+  interestRate Float @default(0.0)
+  transactions   Transaction[]
+  recurringCashFlows  RecurringCashFlow[]
+
+  account MainAccount[] @relation(map: "MainAccount_bankAccount_fkey")
+}
+
+model TradingAccount {
+  id             Int        @id @default(autoincrement())
+  name           String
+  balance        Float      @default(0.0)
+  tradesStock    TradeStockTransaction[]
+  type           TradingAccountType
+
+  account MainAccount[] @relation(map: "MainAccount_tradingAccount_fkey")
+}
+
+enum TradingAccountType {
+  STOCK
+  CRYPTO
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS_TFSA
+  SAVINGS_RRSP
+  SAVINGS_TFSH
+  CREDIT
+}
+
+model Transaction {
+  id             Int        @id @default(autoincrement())
+  accountId      Int
+  amount         Float
+  transactionAt  DateTime   @default(now())
+  type           TransactionType
+  recurringCashFlowId Int?
+  description    String?
+  account        BankAccount?   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  recurringCashFlow   RecurringCashFlow?  @relation(fields: [recurringCashFlowId], references: [id], onDelete: Cascade)
+}
+
+
+model RecurringCashFlow {
+  id             Int        @id @default(autoincrement())
+  accountId      Int
+  name           String
+  amount         Float
+  isActive  Boolean
+  frequency      Frequency
+  account        BankAccount    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+enum RecurringCashFlowType {
+  INCOME
+  SUBSCRIPTION
+}
+
+
+model TradeStockTransaction {
+  id             Int        @id @default(autoincrement())
+  tradingAccountId Int
+  symbol         String    
+  purchasePrice  Float?
+  sellPrice      Float?
+  quantity       Float
+  transactionAt  DateTime   @default(now())
+  tradingAccount TradingAccount @relation(fields: [tradingAccountId], references: [id], onDelete: Cascade)
+}
+
+model FinanceRecommendation {
+  id             Int        @id @default(autoincrement())
+  userId         Int
+  recommendation String
+  createdAt      DateTime   @default(now())
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
