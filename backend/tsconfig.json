@@ -23,6 +23,12 @@
       ],
       "@fred/repositories/*": [
         "libs/repositories/src/*"
+      ],
+      "@hubber/transfer-objects": [
+        "libs/transfer-objects/src"
+      ],
+      "@hubber/transfer-objects/*": [
+        "libs/transfer-objects/src/*"
       ]
     }
   }

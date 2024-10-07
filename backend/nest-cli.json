@@ -15,6 +15,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/repositories/tsconfig.lib.json"
       }
+    },
+    "transfer-objects": {
+      "type": "library",
+      "root": "libs/transfer-objects",
+      "entryFile": "index",
+      "sourceRoot": "libs/transfer-objects/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/transfer-objects/tsconfig.lib.json"
+      }
     }
   }
 }

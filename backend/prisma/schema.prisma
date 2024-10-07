@@ -12,6 +12,7 @@ model User {
   name           String
   email          String     @unique
   age            Int
+  password       String
   accounts       MainAccount[]
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
