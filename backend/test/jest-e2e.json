@@ -12,6 +12,8 @@
   },
   "moduleNameMapper": {
     "@fred/repositories/(.*)": "<rootDir>/../libs/repositories/src/$1",
-    "@fred/repositories": "<rootDir>/../libs/repositories/src"
+    "@fred/repositories": "<rootDir>/../libs/repositories/src",
+    "@hubber/transfer-objects/(.*)": "<rootDir>/../libs/transfer-objects/src/$1",
+    "@hubber/transfer-objects": "<rootDir>/../libs/transfer-objects/src"
   }
 }
