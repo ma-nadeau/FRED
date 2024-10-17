@@ -1,5 +1,12 @@
 // @ts-ignore
-import { IsEmail, IsString, IsInt, MinLength, IsNotEmpty, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  IsInt,
+  MinLength,
+  IsNotEmpty,
+  Min,
+} from 'class-validator';
 export class RequestLoginDTO {
   @IsEmail()
   email: string;
