@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { BarChart } from "@mui/x-charts/BarChart";
-import { LineChart } from "@mui/x-charts/LineChart";
+import { BarChart } from "@mui/x-charts";
+import { LineChart } from "@mui/x-charts";
 import {
   Box,
   Button,
