@@ -86,6 +86,9 @@ function LoginForm() {
             >
               Sign In
             </Button>
+            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                Don't have an account? <a href="/signup">Sign up here</a>
+            </Typography>
           </Box>
         </Box>
       </Grid>
