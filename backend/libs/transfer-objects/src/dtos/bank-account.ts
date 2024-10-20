@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsEnum, IsNumber, IsOptional } from 'class-validator';
-import { AccountType, TransactionType } from '../../../../prisma/generated/client';
+import { AccountType, TransactionType } from '@prisma/client';
 
 // DTO for creating a bank account
 export class CreateBankAccountDto {

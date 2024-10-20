@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Param, Body, Delete, HttpCode, HttpStatus, ForbiddenException, UseGuards } from '@nestjs/common';
 import { BankAccountService } from './bank-account.service'; // Adjust the import path as needed
 import { CreateBankAccountDto, BankAccountResponseDto } from '@hubber/transfer-objects/dtos/bank-account';
-import { FredUser } from 'src/session/auth.decorator'; // Custom decorator to get the logged-in user
-import { UserDAO } from '@hubber/transfer-objects/daos'; // Assuming you have a UserDAO type that contains the user info
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'; // Assuming you have a JWT guard in place
+import { FredUser } from 'src/session/auth.decorator'; // Custom decorator to get the logged-in user from the session
+import { User } from '@prisma/client'; // Assuming User type from Prisma
+import { SessionGuard } from 'src/session/session.guard'; // Assuming this is the guard we are using
 
 @Controller('bank-accounts')
-@UseGuards(JwtAuthGuard) // Protect all routes with JWT authentication
+@UseGuards(SessionGuard) // Protect all routes with SessionGuard (instead of JwtAuthGuard)
 export class BankAccountController {
   constructor(private readonly bankAccountService: BankAccountService) {}
 
@@ -14,7 +14,7 @@ export class BankAccountController {
   @Post()
   async createBankAccount(
     @Body() createBankAccountDto: CreateBankAccountDto,
-    @FredUser() user: UserDAO, // Get the currently authenticated user
+    @FredUser() user: User, // Get the currently authenticated user from the request
   ): Promise<BankAccountResponseDto> {
     const account = await this.bankAccountService.createBankAccount(user.id, createBankAccountDto);
     return account;
@@ -23,7 +23,7 @@ export class BankAccountController {
   // Get all bank accounts for the currently authenticated user
   @Get()
   async getBankAccountsForUser(
-    @FredUser() user: UserDAO, // Get the currently authenticated user
+    @FredUser() user: User, // Get the currently authenticated user
   ): Promise<BankAccountResponseDto[]> {
     const accounts = await this.bankAccountService.getBankAccountsForUser(user.id);
     return accounts;
@@ -33,7 +33,7 @@ export class BankAccountController {
   @Get('account/:accountId')
   async getBankAccountById(
     @Param('accountId') accountId: number,
-    @FredUser() user: UserDAO, // Get the currently authenticated user
+    @FredUser() user: User, // Get the currently authenticated user
   ): Promise<BankAccountResponseDto> {
     const account = await this.bankAccountService.getBankAccountById(accountId, user.id);
     if (!account) {
@@ -47,7 +47,7 @@ export class BankAccountController {
   @HttpCode(HttpStatus.NO_CONTENT) // Return 204 No Content on successful deletion
   async deleteBankAccount(
     @Param('accountId') accountId: number,
-    @FredUser() user: UserDAO, // Get the currently authenticated user
+    @FredUser() user: User, // Get the currently authenticated user
   ): Promise<void> {
     await this.bankAccountService.deleteBankAccount(accountId, user.id);
   }

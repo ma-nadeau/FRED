@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'; // Assuming you have a PrismaService
-import { AccountType } from '../../../../prisma/generated/client'; // Generated types
+import { AccountType } from '@prisma/client'; // Generated types
 
 @Injectable()
 export class BankAccountRepository {
