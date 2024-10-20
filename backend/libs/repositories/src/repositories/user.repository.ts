@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
+import * as bcrypt from 'bcrypt'; // For password hashing
 import { UserDAO } from "@hubber/transfer-objects/daos";
 
 @Injectable()
@@ -59,19 +60,30 @@ export class UserRepository {
         email: string,
         password: string,
     ): Promise<{
-        success: true;
-        user: UserDAO;
+      success: true;
+      user: Omit<UserDAO, 'password'>; // Omit password in the return type
     } | {
-        success: false;
+      success: false;
     }> {
-        const user = await this.prisma.user.findFirst({ where: { email } });
+        // Fetch user including the password (temporarily)
+        const user = await this.prisma.user.findFirst({
+          where: { email },
+          select: { id: true, name: true, email: true, age: true, password: true }, // Include password temporarily
+        });
+      
         if (!user) {
-            return { success: false };
+          return { success: false };
         }
-        if (user.password !== password) {
-            return { success: false };
+      
+        // Compare hashed password using bcrypt
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+          return { success: false };
         }
-        return { success: true, user };
-    }
+      
+        // Destructure password to exclude it from the response
+        const { password: _, ...userWithoutPassword } = user;
 
+        return { success: true, user: userWithoutPassword };
+    }
 }

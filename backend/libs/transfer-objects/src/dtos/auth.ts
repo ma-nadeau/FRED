@@ -1,4 +1,3 @@
-// @ts-ignore
 import {
   IsEmail,
   IsString,
@@ -7,10 +6,13 @@ import {
   IsNotEmpty,
   Min,
 } from 'class-validator';
+
 export class RequestLoginDTO {
-  @IsEmail()
+  @IsEmail({}, { message: 'Invalid email address' })
   email: string;
+
   @IsString()
+  @IsNotEmpty({ message: 'Password is required' })
   password: string;
 }
 
