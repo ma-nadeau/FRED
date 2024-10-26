@@ -6,21 +6,21 @@ import { AccountType } from '@prisma/client'; // Generated types
 export class BankAccountRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Create a new bank account
-  async createBankAccount(userId: number, data: { name: string; type: AccountType; institution: string }) {
+  // Create a new Main Account with the Bank Account
+  async createBankAccount(userId: number, data: { name: string; type: AccountType; institution: string ; balance?: number; interestRate?: number }) {
     return this.prisma.mainAccount.create({
       data: {
         user: {
           connect: { id: userId }, // Connect the MainAccount to the existing User
         },
         institution: data.institution, // Set the institution name
-        type: 'BANK', // Set the type to BANK, as this is for a bank account
+        type: "BANK", // Set the type to BANK, as this is for a bank account
         bankAccount: {
           create: {
             name: data.name,
             type: data.type, // Type should match one of the AccountType enums
-            balance: 0.0, // Initialize balance to 0
-            interestRate: 0.0, // Default interest rate
+            balance: data.balance, // Set the initial balance for the account if provided
+            interestRate: data.interestRate // Set the interest rate for the account if provided
           },
         },
       },
@@ -30,7 +30,7 @@ export class BankAccountRepository {
     });
   }
 
-  // Get all bank accounts for a user
+  // Get all bank accounts for a user 
   async getBankAccountsForUser(userId: number) {
     return this.prisma.mainAccount.findMany({
       where: {
