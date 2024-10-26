@@ -5,7 +5,7 @@ import { FredUser } from 'src/session/auth.decorator'; // Custom decorator to ge
 import { User } from '@prisma/client'; // Assuming User type from Prisma
 import { SessionGuard } from 'src/session/session.guard'; // Assuming this is the guard we are using
 
-@Controller('bank-accounts')
+@Controller('bank-accounts')  
 @UseGuards(SessionGuard) // Protect all routes with SessionGuard (instead of JwtAuthGuard)
 export class BankAccountController {
   constructor(private readonly bankAccountService: BankAccountService) {}
