@@ -14,6 +14,14 @@ export class CreateBankAccountDto {
   @IsNotEmpty() // Ensure institution is included in the DTO
   @IsString()
   institution: string;
+
+  @IsOptional() //optional initial balance
+  @IsNumber()
+  balance?: number;
+
+  @IsOptional() //optional interest rate
+  @IsNumber()
+  interestRate?: number;
 }
 
 // DTO for updating a bank account
