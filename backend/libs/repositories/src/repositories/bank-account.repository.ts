@@ -55,14 +55,14 @@ export class BankAccountRepository {
         },
       },
       include: {
-        transactions: true, // Include transactions in the response
+        transactions: true,
         account: true,
       },
     });
 
-    return accounts.map(account => ({
+    return accounts.map((account) => ({
       ...account,
-      account: account.account[0], // Map the account property to a single object
+      account: account.account[0],
     })) as BankAccountDAO[];
   }
 
@@ -75,7 +75,7 @@ export class BankAccountRepository {
     const account = await this.prisma.bankAccount.findUnique({
       where: { id: accountId },
       include: {
-        transactions: true, // Include transactions in the response
+        transactions: true,
         account: true,
       },
     });
@@ -86,7 +86,7 @@ export class BankAccountRepository {
 
     return {
       ...account,
-      account: account.account[0], // Map the account property to a single object
+      account: account.account[0],
     } as BankAccountDAO;
   }
 
