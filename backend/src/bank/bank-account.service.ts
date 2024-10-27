@@ -8,9 +8,11 @@ export class BankAccountService {
 
   // Create a new bank account for a user
   async createBankAccount(userId: number, createBankAccountDto: CreateBankAccountDto): Promise<BankAccountResponseDto> {
-    const { name, type, institution } = createBankAccountDto;
+    const { name, type, institution, balance, interestRate } = createBankAccountDto;
     
-    const account = await this.bankAccountRepository.createBankAccount(userId, { name, type, institution });
+    // Create the bank account using the repository
+    const account = await this.bankAccountRepository.createBankAccount
+    (userId, { name, type, institution, balance, interestRate });
     
     // Map the response to match the expected DTO structure
     return {

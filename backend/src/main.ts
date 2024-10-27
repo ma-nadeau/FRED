@@ -15,7 +15,7 @@ async function bootstrap() {
       },
     }),
   );
-
+  Logger.log(`JWT_SECRET: ${process.env.JWT_SECRET}`); // Log the JWT_SECRET to verify it's loaded
   await app.listen(4590);
   Logger.log('Application is running on: ' + (await app.getUrl()));
 }

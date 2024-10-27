@@ -7,6 +7,8 @@ import { MorganModule, MorganInterceptor } from 'nest-morgan';
 import { SessionGuard } from './session/session.guard';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
+import { BankAccountController } from './bank/bank-account.controller';
+import { BankAccountService } from './bank/bank-account.service';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { AuthService } from './auth/auth.service';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, BankAccountController], 
   providers: [
     {
       provide: APP_INTERCEPTOR,
@@ -32,6 +34,7 @@ import { AuthService } from './auth/auth.service';
       useClass: SessionGuard,
     },
     AuthService,
+    BankAccountService
   ],
 })
 export class AppModule {}
