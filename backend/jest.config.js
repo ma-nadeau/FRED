@@ -11,6 +11,7 @@ module.exports = {
     moduleNameMapper: {
       '^@fred/repositories(|/.*)$': '<rootDir>/libs/repositories/src/$1',
       '^@hubber/transfer-objects(|/.*)$': '<rootDir>/libs/transfer-objects/src/$1',
+      '^src/(.*)$': '<rootDir>/src/$1',
     },
     collectCoverageFrom: ['**/*.(t|j)s'],
     coverageDirectory: './coverage',

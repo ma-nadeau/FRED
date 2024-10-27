@@ -10,8 +10,8 @@ export class UserRepository {
 
     async findById(
         userId: number,
-    ): Promise<UserDAO> {
-        return this.prisma.user.findFirstOrThrow({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
+    ): Promise<UserDAO | null> {
+        return this.prisma.user.findFirst({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
     }
 
     async create(
