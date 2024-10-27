@@ -11,7 +11,7 @@ export class UserRepository {
     async findById(
         userId: number,
     ): Promise<UserDAO> {
-        return this.prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
+        return this.prisma.user.findFirstOrThrow({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
     }
 
     async create(
