@@ -24,11 +24,14 @@ const AccountFlowGraph: React.FC = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<number | "all">(
     "all"
   );
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+
 
   // Get all transactions from the exampleAccountFlowData
   const transactions = exampleAccountFlowData.bankAccounts.flatMap(
     (account) => account.transactions
   );
+
 
   // Utility function to get transactions for a specific account or all accounts
   const getTransactionsForAccount = (
@@ -165,6 +168,20 @@ const AccountFlowGraph: React.FC = () => {
     setSelectedAccountId(event.target.value as number | "all");
   };
 
+  const handleDeleteClick = () => {
+    setConfirmDelete(true); 
+  };
+
+  const handleConfirmDelete = () => {
+    
+    console.log("Bank account deleted."); 
+    setConfirmDelete(false); 
+  };
+  
+  const handleCancelDelete = () => {
+    setConfirmDelete(false); 
+  };
+
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>
@@ -258,6 +275,38 @@ const AccountFlowGraph: React.FC = () => {
             Create Bank Account
           </Button>
         </Link>
+      </Box>
+
+      {/* Delete Bank Account button */}
+      <Box sx={{ mt: 2 }}>
+        {!confirmDelete ? (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleDeleteClick}
+          >
+            Delete Bank Account
+          </Button>
+        ) : (
+          <Box>
+            <Typography>Are you sure you want to delete this bank account?</Typography>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleConfirmDelete}
+              sx={{ mr: 1 }}
+            >
+              Yes, Delete
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleCancelDelete}
+            >
+              Cancel
+            </Button>
+          </Box>
+        )}
       </Box>
     </Box>
   );
