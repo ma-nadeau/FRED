@@ -40,11 +40,17 @@ describe('UserRepository', () => {
         updatedAt: new Date(),
       };
 
-      prismaService.user.findFirstOrThrow.mockResolvedValue(mockUser);
+
+      prismaService.user.findFirst.mockResolvedValue(mockUser);
 
       const result = await repository.findById(1);
-      expect(result).toEqual(mockUser);
-      expect(prismaService.user.findFirstOrThrow).toHaveBeenCalledWith({
+      expect(result).toEqual({
+        id: mockUser.id,
+        name: mockUser.name,
+        email: mockUser.email,
+        age: mockUser.age
+      });
+      expect(prismaService.user.findFirst).toHaveBeenCalledWith({
         where: { id: 1 },
         select: { id: true, name: true, email: true, age: true }
       });

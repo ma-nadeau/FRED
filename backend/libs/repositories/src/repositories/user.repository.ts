@@ -11,7 +11,13 @@ export class UserRepository {
     async findById(
         userId: number,
     ): Promise<UserDAO | null> {
-        return this.prisma.user.findFirst({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
+        const user = await this.prisma.user.findFirst({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
+        return user ? {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            age: user.age
+        } : null;
     }
 
     async create(
