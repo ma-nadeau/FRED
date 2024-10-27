@@ -3,7 +3,7 @@ import { AuthController } from '../../src/auth/auth.controller';
 import { AuthService } from '../../src/auth/auth.service';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 
-describe('AuthController', () => {
+describe('AuthController (Signup)', () => {
   let controller: AuthController;
   let authService: jest.Mocked<AuthService>;
 
