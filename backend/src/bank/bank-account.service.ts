@@ -16,12 +16,12 @@ export class BankAccountService {
     
     // Map the response to match the expected DTO structure
     return {
-      id: account.bankAccount.id,
-      name: account.bankAccount.name,
-      type: account.bankAccount.type,
-      balance: account.bankAccount.balance,
+      id: account.id,
+      name: account.name,
+      type: account.type,
+      balance: account.balance,
       transactions: [], // Initially, the account will have no transactions
-      interestRate: account.bankAccount.interestRate,
+      interestRate: account.interestRate
     };
   }
 

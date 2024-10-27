@@ -8,26 +8,47 @@ export class BankAccountRepository {
 
   // Create a new Main Account with the Bank Account
   async createBankAccount(userId: number, data: { name: string; type: AccountType; institution: string ; balance?: number; interestRate?: number }) {
-    return this.prisma.mainAccount.create({
+    return this.prisma.bankAccount.create({
       data: {
-        user: {
-          connect: { id: userId }, // Connect the MainAccount to the existing User
-        },
-        institution: data.institution, // Set the institution name
-        type: "BANK", // Set the type to BANK, as this is for a bank account
-        bankAccount: {
+        name: data.name,
+        type: data.type,
+        balance: data.balance,
+        interestRate: data.interestRate,
+        account: {
           create: {
-            name: data.name,
-            type: data.type, // Type should match one of the AccountType enums
-            balance: data.balance, // Set the initial balance for the account if provided
-            interestRate: data.interestRate // Set the interest rate for the account if provided
+            user: {
+              connect: { id: userId },
+            },
+            institution: data.institution,
+            type: 'BANK',
           },
         },
       },
       include: {
-        bankAccount: true, // Include the BankAccount in the response
+        account: true,
       },
     });
+   
+    // return this.prisma.mainAccount.create({
+    //   data: {
+    //     user: {
+    //       connect: { id: userId }, // Connect the MainAccount to the existing User
+    //     },
+    //     institution: data.institution, // Set the institution name
+    //     type: "BANK", // Set the type to BANK, as this is for a bank account
+    //     bankAccount: {
+    //       create: {
+    //         name: data.name,
+    //         type: data.type, // Type should match one of the AccountType enums
+    //         balance: data.balance, // Set the initial balance for the account if provided
+    //         interestRate: data.interestRate // Set the interest rate for the account if provided
+    //       },
+    //     },
+    //   },
+    //   include: {
+    //     bankAccount: true, // Include the BankAccount in the response
+    //   },
+    // });
   }
 
   // Get all bank accounts for a user 

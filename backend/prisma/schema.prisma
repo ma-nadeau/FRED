@@ -23,11 +23,13 @@ model MainAccount {
   id             Int        @id @default(autoincrement())
   userId         Int
   type           MainAccountType
-  accountId      Int
+  // accountId      Int
+  bankAccountId   Int?       // Make this optional
+  tradingAccountId Int?      // Make this optional
   institution    String
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bankAccount    BankAccount?   @relation(fields: [accountId], references: [id], onDelete: Cascade, map: "MainAccount_bankAccount_fkey")
-  tradingAccount TradingAccount?  @relation(fields: [accountId], references: [id], onDelete: Cascade, map: "MainAccount_tradingAccount_fkey")
+  bankAccount    BankAccount?   @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  tradingAccount TradingAccount?  @relation(fields: [tradingAccountId], references: [id], onDelete: Cascade)
 }
 
 enum MainAccountType {
@@ -44,7 +46,7 @@ model BankAccount {
   transactions   Transaction[]
   recurringCashFlows  RecurringCashFlow[]
 
-  account MainAccount[] @relation(map: "MainAccount_bankAccount_fkey")
+  account MainAccount[] 
 }
 
 model TradingAccount {
@@ -54,7 +56,7 @@ model TradingAccount {
   tradesStock    TradeStockTransaction[]
   type           TradingAccountType
 
-  account MainAccount[] @relation(map: "MainAccount_tradingAccount_fkey")
+  account MainAccount[] 
 }
 
 enum TradingAccountType {
