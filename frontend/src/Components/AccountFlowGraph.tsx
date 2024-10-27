@@ -12,6 +12,7 @@ import {
   Typography,
   SelectChangeEvent,
 } from "@mui/material";
+import Link from 'next/link';
 import {
   exampleAccountFlowData,
   Transaction,
@@ -59,7 +60,6 @@ const AccountFlowGraph: React.FC = () => {
     }
   };
 
-
   // Function to filter transactions based on the selected time range and sort them by date
   const filterTransactionsByTimeRange = (accountId: number | "all"): Transaction[] => {
     const accountTransactions = getTransactionsForAccount(accountId);
@@ -93,7 +93,6 @@ const AccountFlowGraph: React.FC = () => {
 
     return dataPoints;
   };
-
 
   // Utility function to format a date as "YYYY-MM" for grouping by month
   const formatMonth = (date: Date): string => {
@@ -198,24 +197,22 @@ const AccountFlowGraph: React.FC = () => {
       {/* Line Chart for cumulative balance */}
       {selectedAccountId !== "all" && (
         <LineChart
-        xAxis={[
-          {
-            scaleType: 'time',
-            data: cumulativeData.map((d) => d.x),
-            valueFormatter: (value) => new Date(value).toLocaleDateString(), // Format timestamp into readable date
-          },
-        ]}
-        series={[
-          {
-            data: cumulativeData.map((d) => d.y),
-            label: "Balance Over Time",
-          },
-        ]}
-        width={500}
-        height={300}
-      />
-      
-      
+          xAxis={[
+            {
+              scaleType: 'time',
+              data: cumulativeData.map((d) => d.x),
+              valueFormatter: (value) => new Date(value).toLocaleDateString(), // Format timestamp into readable date
+            },
+          ]}
+          series={[
+            {
+              data: cumulativeData.map((d) => d.y),
+              label: "Balance Over Time",
+            },
+          ]}
+          width={500}
+          height={300}
+        />
       )}
 
       {/* Cash Flow Percentage Display */}
@@ -250,6 +247,18 @@ const AccountFlowGraph: React.FC = () => {
         </Button>
         <Button onClick={() => handleTimeRangeChange("All")}>All</Button>
       </ButtonGroup>
+
+      {/* Add the Create Bank Account button */}
+      <Box sx={{ mt: 2 }}>
+        <Link href="/create_bank_account" passHref>
+          <Button
+            variant="contained"
+            color="primary"
+          >
+            Create Bank Account
+          </Button>
+        </Link>
+      </Box>
     </Box>
   );
 };

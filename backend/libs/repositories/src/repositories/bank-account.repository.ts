@@ -1,94 +1,114 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { AccountType, MainAccount, MainAccountType } from '@prisma/client';
+import { PrismaService } from '../prisma.service'; // Assuming you have a PrismaService
+import { AccountType, MainAccountType, Transaction } from '@prisma/client'; // Generated types
+import { BankAccountDAO } from '@hubber/transfer-objects/bank-account.daos'; // Import the DAO
 
 @Injectable()
 export class BankAccountRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Creates a new bank account for a user.
+   * Create a bank account with a main account.
    * @param userId - The ID of the user.
-   * @param data - The data needed to create a bank account.
-   * @returns The created main account with the associated bank account.
+   * @returns a bank account with its main account.
    */
-  async createBankAccount(
-    userId: number,
-    data: { name: string; type: AccountType; institution: string }
-  ): Promise<MainAccount> {
-    return this.prisma.mainAccount.create({
+  async createBankAccount(userId: number, data: { name: string; type: AccountType; institution: string; balance?: number; interestRate?: number }): Promise<BankAccountDAO> {
+    const account = await this.prisma.bankAccount.create({
       data: {
-        user: {
-          connect: { id: userId },
-        },
-        institution: data.institution,
-        type: MainAccountType.BANK, // Use the enum provided by Prisma
-        bankAccount: {
+        name: data.name,
+        type: data.type,
+        balance: data.balance,
+        interestRate: data.interestRate,
+        account: {
           create: {
-            name: data.name,
-            type: data.type,
-            balance: 0.0,
-            interestRate: 0.0,
+            user: {
+              connect: { id: userId },
+            },
+            institution: data.institution,
+            type: MainAccountType.BANK,
           },
         },
       },
       include: {
-        bankAccount: true,
+        account: true,
+        transactions: true, // Include transactions in the response
       },
     });
+
+    return {
+      ...account,
+      account: account.account[0], // Map the account property to a single object
+    } as BankAccountDAO;
   }
 
   /**
-   * Retrieves all bank accounts for a specific user.
-   * @param userId - The ID of the user.
-   * @returns An array of main accounts with associated bank accounts and transactions.
+   * @returns An array of bank accounts with associated transactions.
    */
-  async getBankAccountsForUser(userId: number): Promise<MainAccount[]> {
-    return this.prisma.mainAccount.findMany({
+  async getBankAccountsForUser(userId: number): Promise<BankAccountDAO[]> {
+    const accounts = await this.prisma.bankAccount.findMany({
       where: {
-        userId: userId,
-        type: MainAccountType.BANK,
-      },
-      include: {
-        bankAccount: {
-          include: {
-            transactions: true,
+        account: {
+          some: {
+            userId: userId,
+            type: MainAccountType.BANK,
           },
         },
       },
+      include: {
+        transactions: true, // Include transactions in the response
+        account: true,
+      },
     });
+
+    return accounts.map(account => ({
+      ...account,
+      account: account.account[0], // Map the account property to a single object
+    })) as BankAccountDAO[];
   }
 
   /**
    * Retrieves a specific bank account by its ID.
-   * @param accountId - The ID of the main account.
-   * @returns The main account with associated bank account and transactions.
+   * @param accountId - The ID of the bank account.
+   * @returns The bank account with associated transactions.
    */
-  async getBankAccountById(accountId: number): Promise<MainAccount | null> {
-    return this.prisma.mainAccount.findUnique({
-      where: {
-        id: accountId,
-      },
+  async getBankAccountById(accountId: number): Promise<BankAccountDAO | null> {
+    const account = await this.prisma.bankAccount.findUnique({
+      where: { id: accountId },
       include: {
-        bankAccount: {
-          include: {
-            transactions: true,
-          },
-        },
+        transactions: true, // Include transactions in the response
+        account: true,
       },
     });
+
+    if (!account) {
+      return null;
+    }
+
+    return {
+      ...account,
+      account: account.account[0], // Map the account property to a single object
+    } as BankAccountDAO;
   }
 
   /**
    * Deletes a specific bank account by its ID.
-   * @param accountId - The ID of the main account to delete.
-   * @returns The deleted main account.
+   * @param accountId - The ID of the bank account to delete.
+   * @returns The deleted bank account.
    */
-  async deleteBankAccount(accountId: number): Promise<MainAccount> {
-    return this.prisma.mainAccount.delete({
+  async deleteBankAccount(accountId: number): Promise<BankAccountDAO> {
+    const account = await this.prisma.bankAccount.delete({
       where: {
         id: accountId,
       },
+      include: {
+        transactions: true, // Include transactions in the response
+        account: true,
+      },
     });
+
+    return {
+      ...account,
+      account: account.account[0], // Map the account property to a single object
+    } as BankAccountDAO;
   }
 }
