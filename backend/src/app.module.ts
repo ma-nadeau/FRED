@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { RepositoriesModule } from '@fred/repositories/repositories.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
@@ -17,9 +17,13 @@ import { BankAccountService } from './bank/bank-account.service';
     }),
     RepositoriesModule,
     MorganModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1h' },
+      }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController, BankAccountController], 
@@ -28,7 +32,6 @@ import { BankAccountService } from './bank/bank-account.service';
       provide: APP_INTERCEPTOR,
       useClass: MorganInterceptor('dev'),
     },
-    JwtService,
     {
       provide: APP_GUARD,
       useClass: SessionGuard,
