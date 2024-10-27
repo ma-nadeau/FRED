@@ -19,6 +19,9 @@ import {
   BankAccount,
 } from "../types/AccountFlowData"; // Import the example data
 
+import axios from 'axios';
+
+
 const AccountFlowGraph: React.FC = () => {
   const [timeRange, setTimeRange] = useState<string>("Last Month");
   const [selectedAccountId, setSelectedAccountId] = useState<number | "all">(
@@ -172,10 +175,13 @@ const AccountFlowGraph: React.FC = () => {
     setConfirmDelete(true); 
   };
 
-  const handleConfirmDelete = () => {
-    
-    console.log("Bank account deleted."); 
-    setConfirmDelete(false); 
+  const handleConfirmDelete = async () => {
+    try {
+      await axios.delete(`/api/account/${selectedAccountId}`);
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      throw error;
+    }
   };
   
   const handleCancelDelete = () => {
