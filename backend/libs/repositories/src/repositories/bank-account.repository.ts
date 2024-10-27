@@ -91,6 +91,55 @@ export class BankAccountRepository {
   }
 
   /**
+   * Updates a specific bank account with the provided data.
+   * @param accountId - The ID of the bank account to update.
+   * @param data - An object containing the updated bank account details.
+   * @param data.type - The type of the bank account (e.g., Savings, Checking).
+   * @param data.name - The name of the bank account.
+   * @param data.balance - The balance of the bank account.
+   * @param data.interestRate - The interest rate of the bank account.
+   * @param data.transactions - An array of transactions to be created for the bank account.
+   * @returns The updated bank account.
+   */
+  async updateBankAccount(accountId: number, data: Partial<{ type: AccountType; name: string; balance: number; interestRate: number; transactions: any[] }>) {
+    const updateData: any = {};
+  
+    if (data.type !== undefined) {
+      updateData.type = data.type;
+    }
+    if (data.name !== undefined) {
+      updateData.name = data.name;
+    }
+    if (data.balance !== undefined) {
+      updateData.balance = data.balance;
+    }
+    if (data.interestRate !== undefined) {
+      updateData.interestRate = data.interestRate;
+    }
+    if (data.transactions !== undefined) {
+      updateData.transactions = {
+        createMany: {
+          data: data.transactions,
+        },
+      };
+    }
+  
+    return this.prisma.mainAccount.update({
+      where: {
+        id: accountId,
+      },
+      data: {
+        bankAccount: {
+          update: updateData,
+        },
+      },
+      include: {
+        bankAccount: true,
+      },
+    });
+  }
+
+  /**
    * Deletes a specific bank account by its ID.
    * @param accountId - The ID of the bank account to delete.
    * @returns The deleted bank account.

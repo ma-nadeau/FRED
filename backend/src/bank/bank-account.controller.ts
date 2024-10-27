@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Param, Body, Delete, HttpCode, HttpStatus, ForbiddenException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, Delete, HttpCode, HttpStatus, ForbiddenException, UseGuards } from '@nestjs/common';
 import { BankAccountService } from './bank-account.service'; // Adjust the import path as needed
-import { CreateBankAccountDto, BankAccountResponseDto } from '@hubber/transfer-objects/dtos/bank-account';
+import { CreateBankAccountDto, BankAccountResponseDto, UpdateBankAccountDto } from '@hubber/transfer-objects/dtos/bank-account';
 import { FredUser } from 'src/session/auth.decorator'; // Custom decorator to get the logged-in user from the session
 import { User } from '@prisma/client'; // Assuming User type from Prisma
 import { SessionGuard } from 'src/session/session.guard'; // Assuming this is the guard we are using
@@ -40,6 +40,17 @@ export class BankAccountController {
       throw new ForbiddenException('You do not have permission to view this account');
     }
     return account;
+  }
+
+  // Update an existing bank account for the currently authenticated user
+  @Put(':id')
+  async updateBankAccount(
+    @Param('id') id: number,
+    @Body() updateBankAccountDto: UpdateBankAccountDto,
+    @FredUser() user: User, // Get the currently authenticated user
+  ): Promise<BankAccountResponseDto> {
+    const updatedAccount = await this.bankAccountService.updateBankAccount(user.id, id, updateBankAccountDto);
+    return updatedAccount;
   }
 
   // Delete a specific bank account by its ID, only if it belongs to the authenticated user

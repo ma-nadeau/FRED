@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { BankAccountRepository } from '../../libs/repositories/src/repositories/bank-account.repository'; // Adjust import path as needed
-import { CreateBankAccountDto, BankAccountResponseDto, TransactionDto } from '@hubber/transfer-objects/dtos/bank-account';
+import { CreateBankAccountDto, BankAccountResponseDto, TransactionDto, UpdateBankAccountDto } from '@hubber/transfer-objects/dtos/bank-account';
 
 @Injectable()
 export class BankAccountService {
@@ -80,6 +80,20 @@ export class BankAccountService {
       })) ?? [], // Ensure transactions are included
       interestRate: account.interestRate ?? 0, // Ensure interestRate is defined
     };
+  }
+
+  async updateBankAccount(userId: number, accountId: number, updateBankAccountDto: UpdateBankAccountDto): Promise<BankAccountResponseDto> {
+    // Fetch the bank account by account ID
+    const account = await this.getBankAccountById(userId, accountId);
+    if (!account) {
+      throw new NotFoundException('Bank account not found');
+    }
+    // Update the bank account with the provided data
+    Object.assign(account, updateBankAccountDto);
+    // Save the updated bank account
+    await this.bankAccountRepository.updateBankAccount(accountId, account);
+    // Return the updated bank account
+    return account;
   }
 
   async deleteBankAccount(accountId: number, userId: number): Promise<void> {

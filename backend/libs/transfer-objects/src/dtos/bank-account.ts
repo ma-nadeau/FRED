@@ -34,6 +34,17 @@ export class UpdateBankAccountDto {
   @IsOptional()
   @IsEnum(AccountType) // Use enum for type
   type?: AccountType;
+
+  @IsOptional()
+  @IsNumber()
+  balance?: number;
+
+  @IsOptional()
+  @IsNumber()
+  interestRate?: number;
+
+  @IsOptional()
+  transactions?: any[]; // Include transactions in the DTO
 }
 
 // Transaction DTO for the response
