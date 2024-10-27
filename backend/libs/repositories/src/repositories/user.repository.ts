@@ -92,4 +92,8 @@ export class UserRepository {
 
         return { success: true, user: userWithoutPassword };
     }
+
+    async getUserCount(): Promise<number> {
+        return this.prisma.user.count();
+    }
 }

@@ -72,4 +72,8 @@ export class AuthService {
     // If the user is authenticated, return true
     return true;
   }
+
+  async getUserCount(): Promise<number> {
+    return this.userRepository.getUserCount();
+  }
 }
