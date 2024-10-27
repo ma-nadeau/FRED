@@ -52,7 +52,7 @@ export class TransactionDto {
 
   @IsOptional() // Description is optional
   @IsString()
-  description?: string;
+  description?: string | null;
 
   @IsString()
   transactionAt: string; // ISO date string (ensure it's a string in the response)
