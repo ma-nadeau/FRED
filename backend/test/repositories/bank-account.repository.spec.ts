@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BankAccountRepository } from '../../libs/repositories/src/repositories/bank-account.repository';
 import { PrismaService } from '../../libs/repositories/src/prisma.service';
-import { AccountType } from '@prisma/client';
+import { AccountType, MainAccountType, Prisma } from '@prisma/client';
+import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 describe('BankAccountRepository', () => {
   let repository: BankAccountRepository;
-  let prismaService: PrismaService;
+  let prismaService: DeepMockProxy<PrismaService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -13,20 +14,13 @@ describe('BankAccountRepository', () => {
         BankAccountRepository,
         {
           provide: PrismaService,
-          useValue: {
-            mainAccount: {
-              create: jest.fn(),
-              findMany: jest.fn(),
-              findUnique: jest.fn(),
-              delete: jest.fn(),
-            },
-          },
+          useValue: mockDeep<PrismaService>(),
         },
       ],
     }).compile();
 
     repository = module.get<BankAccountRepository>(BankAccountRepository);
-    prismaService = module.get<PrismaService>(PrismaService);
+    prismaService = module.get(PrismaService);
   });
 
   it('should be defined', () => {
@@ -39,17 +33,17 @@ describe('BankAccountRepository', () => {
         id: 1,
         userId: 1,
         institution: 'Test Bank',
-        type: 'BANK',
+        type: MainAccountType.BANK,
         bankAccount: {
           id: 1,
           name: 'Test Account',
           type: AccountType.CHECKING,
-          balance: 0.0,
-          interestRate: 0.0,
+          balance: new Prisma.Decimal(0.0),
+          interestRate: new Prisma.Decimal(0.0),
         },
       };
 
-      jest.spyOn(prismaService.mainAccount, 'create').mockResolvedValue(mockAccount as any);
+      prismaService.mainAccount.create.mockResolvedValue(mockAccount as any);
 
       const result = await repository.createBankAccount(1, {
         name: 'Test Account',
@@ -62,7 +56,7 @@ describe('BankAccountRepository', () => {
         data: {
           user: { connect: { id: 1 } },
           institution: 'Test Bank',
-          type: 'BANK',
+          type: MainAccountType.BANK,
           bankAccount: {
             create: {
               name: 'Test Account',
@@ -84,19 +78,19 @@ describe('BankAccountRepository', () => {
           id: 1,
           userId: 1,
           institution: 'Test Bank',
-          type: 'BANK',
+          type: MainAccountType.BANK,
           bankAccount: {
             id: 1,
             name: 'Test Account',
             type: AccountType.CHECKING,
-            balance: 100.0,
+            balance: new Prisma.Decimal(100.0),
             transactions: [],
-            interestRate: 0.0,
+            interestRate: new Prisma.Decimal(0.0),
           },
         },
       ];
 
-      jest.spyOn(prismaService.mainAccount, 'findMany').mockResolvedValue(mockAccounts as any);
+      prismaService.mainAccount.findMany.mockResolvedValue(mockAccounts as any);
 
       const result = await repository.getBankAccountsForUser(1);
 
@@ -104,7 +98,7 @@ describe('BankAccountRepository', () => {
       expect(prismaService.mainAccount.findMany).toHaveBeenCalledWith({
         where: {
           userId: 1,
-          type: 'BANK',
+          type: MainAccountType.BANK,
         },
         include: {
           bankAccount: {
@@ -121,18 +115,18 @@ describe('BankAccountRepository', () => {
         id: 1,
         userId: 1,
         institution: 'Test Bank',
-        type: 'BANK',
+        type: MainAccountType.BANK,
         bankAccount: {
           id: 1,
           name: 'Test Account',
           type: AccountType.CHECKING,
-          balance: 100.0,
+          balance: new Prisma.Decimal(100.0),
           transactions: [],
-          interestRate: 0.0,
+          interestRate: new Prisma.Decimal(0.0),
         },
       };
 
-      jest.spyOn(prismaService.mainAccount, 'findUnique').mockResolvedValue(mockAccount as any);
+      prismaService.mainAccount.findUnique.mockResolvedValue(mockAccount as any);
 
       const result = await repository.getBankAccountById(1);
 
@@ -154,10 +148,10 @@ describe('BankAccountRepository', () => {
         id: 1,
         userId: 1,
         institution: 'Test Bank',
-        type: 'BANK',
+        type: MainAccountType.BANK,
       };
 
-      jest.spyOn(prismaService.mainAccount, 'delete').mockResolvedValue(mockAccount as any);
+      prismaService.mainAccount.delete.mockResolvedValue(mockAccount as any);
 
       const result = await repository.deleteBankAccount(1);
 
