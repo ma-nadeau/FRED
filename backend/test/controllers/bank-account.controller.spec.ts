@@ -4,9 +4,9 @@ import { BankAccountService } from '../../src/bank/bank-account.service'; // Adj
 import {
   CreateBankAccountDto,
   BankAccountResponseDto,
-} from '@hubber/transfer-objects/dtos/bank-account'; // Adjust the import paths as needed
+} from '@fred/transfer-objects/dtos/bank-account'; // Adjust the import paths as needed
 import { User } from '@prisma/client'; // Assuming User type from Prisma
-import { SessionGuard } from 'src/session/session.guard'; // Adjust the import path as needed
+import { SessionGuard } from '../../src/session/session.guard'; // Adjust the import path as needed
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 

@@ -2,7 +2,7 @@ import { BankAccountRepository } from '../../libs/repositories/src/repositories/
 import { PrismaService } from '../../libs/repositories/src/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountType, MainAccountType, Prisma } from '@prisma/client';
-import { BankAccountDAO } from '@hubber/transfer-objects/bank-account.daos';
+import { BankAccountDAO } from '@fred/transfer-objects/bank-account.daos';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
 describe('BankAccountRepository', () => {

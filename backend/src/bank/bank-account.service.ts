@@ -8,8 +8,8 @@ import {
   CreateBankAccountDto,
   BankAccountResponseDto,
   TransactionDto,
-} from '@hubber/transfer-objects/dtos/bank-account';
-import { BankAccountDAO } from '@hubber/transfer-objects/bank-account.daos';
+} from '@fred/transfer-objects/dtos/bank-account';
+import { BankAccountDAO } from '@fred/transfer-objects/bank-account.daos';
 
 @Injectable()
 export class BankAccountService {

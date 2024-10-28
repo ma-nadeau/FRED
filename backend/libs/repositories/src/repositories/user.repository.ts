@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import * as bcrypt from 'bcrypt'; // For password hashing
-import { UserDAO } from "@hubber/transfer-objects/daos";
+import { UserDAO } from "@fred/transfer-objects/daos";
 
 @Injectable()
 export class UserRepository {

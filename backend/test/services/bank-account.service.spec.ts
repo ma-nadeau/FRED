@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BankAccountService } from '../../src/bank/bank-account.service'; // Adjust import path as needed
 import { BankAccountRepository } from '../../libs/repositories/src/repositories/bank-account.repository'; // Adjust import path as needed
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
-import { CreateBankAccountDto } from '@hubber/transfer-objects/dtos/bank-account'; // Adjust import path as needed
-import { BankAccountDAO } from '@hubber/transfer-objects/bank-account.daos'; // Adjust import path as needed
+import { CreateBankAccountDto } from '@fred/transfer-objects/dtos/bank-account'; // Adjust import path as needed
+import { BankAccountDAO } from '@fred/transfer-objects/bank-account.daos'; // Adjust import path as needed
 import { AccountType, MainAccountType } from '@prisma/client';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 

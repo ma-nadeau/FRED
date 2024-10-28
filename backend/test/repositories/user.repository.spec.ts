@@ -2,7 +2,7 @@ import { UserRepository } from '../../libs/repositories/src/repositories/user.re
 import { PrismaService } from '../../libs/repositories/src/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { UserDAO } from '@hubber/transfer-objects/daos';
+import { UserDAO } from '@fred/transfer-objects/daos';
 import { User } from '@prisma/client';
 
 describe('UserRepository', () => {
