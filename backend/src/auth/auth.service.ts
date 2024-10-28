@@ -2,8 +2,8 @@ import { UserRepository } from '../../libs/repositories/src/repositories/user.re
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt'; // For password hashing
-import { RequestSignupDTO, RequestLoginDTO } from '@hubber/transfer-objects/dtos/auth';
-import { UserDAO } from '@hubber/transfer-objects/daos';
+import { RequestSignupDTO, RequestLoginDTO } from '@fred/transfer-objects/dtos/auth';
+import { UserDAO } from '@fred/transfer-objects/daos';
 
 @Injectable()
 export class AuthService {
@@ -71,5 +71,9 @@ export class AuthService {
 
     // If the user is authenticated, return true
     return true;
+  }
+
+  async getUserCount(): Promise<number> {
+    return this.userRepository.getUserCount();
   }
 }

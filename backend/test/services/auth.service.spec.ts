@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../src/auth/auth.service';
 import { UserRepository } from '../../libs/repositories/src/repositories/user.repository';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { User } from '@prisma/client';

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'; // Assuming you have a PrismaService
 import { AccountType, MainAccountType, Transaction } from '@prisma/client'; // Generated types
-import { BankAccountDAO } from '@hubber/transfer-objects/bank-account.daos'; // Import the DAO
+import { BankAccountDAO } from '@fred/transfer-objects/bank-account.daos'; // Import the DAO
 
 @Injectable()
 export class BankAccountRepository {

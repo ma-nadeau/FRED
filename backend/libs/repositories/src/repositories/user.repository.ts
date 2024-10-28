@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import * as bcrypt from 'bcrypt'; // For password hashing
-import { UserDAO } from "@hubber/transfer-objects/daos";
+import { UserDAO } from "@fred/transfer-objects/daos";
 
 @Injectable()
 export class UserRepository {
@@ -91,5 +91,9 @@ export class UserRepository {
         const { password: _, ...userWithoutPassword } = user;
 
         return { success: true, user: userWithoutPassword };
+    }
+
+    async getUserCount(): Promise<number> {
+        return this.prisma.user.count();
     }
 }

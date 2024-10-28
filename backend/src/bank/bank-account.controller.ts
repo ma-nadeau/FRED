@@ -14,10 +14,10 @@ import { BankAccountService } from './bank-account.service'; // Adjust the impor
 import {
   CreateBankAccountDto,
   BankAccountResponseDto,
-} from '@hubber/transfer-objects/dtos/bank-account';
-import { FredUser } from 'src/session/auth.decorator'; // Custom decorator to get the logged-in user from the session
+} from '@fred/transfer-objects/dtos/bank-account';
+import { FredUser } from '../session/auth.decorator'; // Custom decorator to get the logged-in user from the session
 import { User } from '@prisma/client'; // Assuming User type from Prisma
-import { SessionGuard } from 'src/session/session.guard'; // Assuming this is the guard we are using
+import { SessionGuard } from '../session/session.guard'; // Assuming this is the guard we are using
 
 @Controller('bank-accounts')
 @UseGuards(SessionGuard) // Protect all routes with SessionGuard
