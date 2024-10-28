@@ -18,8 +18,8 @@ import {
   Transaction,
   BankAccount,
 } from "../types/AccountFlowData"; // Import the example data
+import http from '@fred/lib/http';
 
-import axios from 'axios';
 
 
 const AccountFlowGraph: React.FC = () => {
@@ -175,14 +175,25 @@ const AccountFlowGraph: React.FC = () => {
     setConfirmDelete(true); 
   };
 
-  const handleConfirmDelete = async () => {
-    try {
-      await axios.delete(`/api/account/${selectedAccountId}`);
-    } catch (error) {
-      console.error("Error deleting account:", error);
-      throw error;
-    }
+
+  const handleConfirmDelete = () => {
+
+    console.log('Delete Account Submitted selectedAccountId:',selectedAccountId);
+    
+    http('DELETE', `/account/${selectedAccountId}`)
+      .then(async (response) => {
+        console.log('Response:', response);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        let errorMessage = 'Delete Account Failed. Please try again.';
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        console.error(errorMessage);
+      });
   };
+
   
   const handleCancelDelete = () => {
     setConfirmDelete(false); 
