@@ -207,13 +207,12 @@ const AccountFlowGraph: React.FC = () => {
       <Select
         value={selectedAccountId}
         onChange={handleAccountChange}
-        displayEmpty
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, color: "text.primary", backgroundColor: "background.paper" }}
       >
         <MenuItem value="all">All Accounts</MenuItem>
         {exampleAccountFlowData.bankAccounts.map((account: BankAccount) => (
           <MenuItem key={account.id} value={account.id}>
-            {account.name}
+        {account.name}
           </MenuItem>
         ))}
       </Select>
