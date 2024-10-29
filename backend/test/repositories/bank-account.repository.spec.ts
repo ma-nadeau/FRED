@@ -3,7 +3,9 @@ import { PrismaService } from '../../libs/repositories/src/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountType, MainAccountType, Prisma } from '@prisma/client';
 import { BankAccountDAO } from '@fred/transfer-objects/bank-account.daos';
+import { UpdateBankAccountDto } from '@hubber/transfer-objects/dtos/bank-account';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { NotFoundException } from '@nestjs/common';
 
 describe('BankAccountRepository', () => {
   let repository: BankAccountRepository;
@@ -210,6 +212,71 @@ describe('BankAccountRepository', () => {
           account: true,
         },
       });
+    });
+  });
+
+  describe('updateBankAccount', () => {
+    it('should update an existing bank account', async () => {
+      const mockAccount = {
+        id: 1,
+        userId: 1,
+        name: 'Test Account',
+        type: AccountType.SAVINGS_TFSA,
+        institution: 'Test Bank',
+        balance: 150.00,
+        interestRate: 5.0,
+      };
+
+      prismaService.mainAccount.update.mockResolvedValue(mockAccount as any);
+
+      const updateBankAccountDto: UpdateBankAccountDto = {
+        name: 'Updated Test Account',
+        type: AccountType.SAVINGS_TFSA,
+        // institution: 'Test Bank',
+        balance: 150.00,
+        interestRate: 5.0,
+        transactions: [],
+      };
+
+      const result = await repository.updateBankAccount(1, updateBankAccountDto);
+
+      expect(result).toEqual(mockAccount);
+      expect(prismaService.mainAccount.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: {
+          bankAccount: {
+            update: {
+              type: updateBankAccountDto.type,
+              name: updateBankAccountDto.name,
+              balance: updateBankAccountDto.balance,
+              interestRate: updateBankAccountDto.interestRate,
+              transactions: {
+                createMany: {
+                  data: updateBankAccountDto.transactions,
+                },
+              },
+            },
+          },
+        },
+        include: {
+          bankAccount: true,
+        },
+      });
+    });
+
+    it('should throw NotFoundException if the bank account does not exist', async () => {
+      prismaService.mainAccount.update.mockRejectedValue(new NotFoundException('Bank account not found'));
+
+      const updateBankAccountDto: UpdateBankAccountDto = {
+        name: 'Updated Account',
+        type: AccountType.SAVINGS_TFSA,
+        // institution: 'Test Bank',
+        balance: 1000.0,
+        interestRate: 1.5,
+        transactions: [],
+      };
+
+      await expect(repository.updateBankAccount(1, updateBankAccountDto)).rejects.toThrow(NotFoundException);
     });
   });
 

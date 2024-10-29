@@ -8,6 +8,7 @@ import {
   CreateBankAccountDto,
   BankAccountResponseDto,
   TransactionDto,
+  UpdateBankAccountDto,
 } from '@fred/transfer-objects/dtos/bank-account';
 import { BankAccountDAO } from '@fred/transfer-objects/bank-account.daos';
 
@@ -85,6 +86,26 @@ export class BankAccountService {
     }
 
     return this.mapToBankAccountResponseDto(account);
+  }
+
+  /**
+   * Updates a specific bank account by its ID for a user.
+   * @param accountId - The ID of the bank account.
+   * @param userId - The ID of the user.
+   * @returns The bank account as a response DTO.
+   */
+  async updateBankAccount(userId: number, accountId: number, updateBankAccountDto: UpdateBankAccountDto): Promise<BankAccountResponseDto> {
+    // Fetch the bank account by account ID
+    const account = await this.getBankAccountById(userId, accountId);
+    if (!account) {
+      throw new NotFoundException('Bank account not found');
+    }
+    // Update the bank account with the provided data
+    Object.assign(account, updateBankAccountDto);
+    // Save the updated bank account
+    await this.bankAccountRepository.updateBankAccount(accountId, account);
+    // Return the updated bank account
+    return account;
   }
 
   /**

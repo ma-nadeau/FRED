@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Param,
   Body,
   Delete,
@@ -14,6 +15,7 @@ import { BankAccountService } from './bank-account.service'; // Adjust the impor
 import {
   CreateBankAccountDto,
   BankAccountResponseDto,
+  UpdateBankAccountDto,
 } from '@fred/transfer-objects/dtos/bank-account';
 import { FredUser } from '../session/auth.decorator'; // Custom decorator to get the logged-in user from the session
 import { User } from '@prisma/client'; // Assuming User type from Prisma
@@ -48,6 +50,17 @@ export class BankAccountController {
     @FredUser() user: User, // Get the currently authenticated user
   ): Promise<BankAccountResponseDto> {
     return this.bankAccountService.getBankAccountById(accountId, user.id);
+  }
+
+  // Update an existing bank account for the currently authenticated user
+  @Put(':id')
+  async updateBankAccount(
+    @Param('id') id: number,
+    @Body() updateBankAccountDto: UpdateBankAccountDto,
+    @FredUser() user: User, // Get the currently authenticated user
+  ): Promise<BankAccountResponseDto> {
+    const updatedAccount = await this.bankAccountService.updateBankAccount(user.id, id, updateBankAccountDto);
+    return updatedAccount;
   }
 
   // Delete a specific bank account by its ID, only if it belongs to the authenticated user
