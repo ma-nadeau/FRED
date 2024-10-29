@@ -4,6 +4,7 @@ import { BankAccountService } from '../../src/bank/bank-account.service'; // Adj
 import {
   CreateBankAccountDto,
   BankAccountResponseDto,
+  UpdateBankAccountDto,
 } from '@fred/transfer-objects/dtos/bank-account'; // Adjust the import paths as needed
 import { User } from '@prisma/client'; // Assuming User type from Prisma
 import { SessionGuard } from '../../src/session/session.guard'; // Adjust the import path as needed
@@ -248,6 +249,72 @@ describe('BankAccountController', () => {
 
       await expect(controller.deleteBankAccount(accountId, user)).rejects.toThrow(ForbiddenException);
       expect(service.deleteBankAccount).toHaveBeenCalledWith(accountId, user.id);
+    });
+  });
+
+  describe('updateBankAccount', () => {
+    it('should update a bank account successfully', async () => {
+      const user: User = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        age: 30,
+        password: 'hashedpassword',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const accountId = 1;
+
+      const updateBankAccountDto: UpdateBankAccountDto = {
+        name: 'Updated Account',
+        type: 'SAVINGS_TFSA',
+        balance: 2000,
+        interestRate: 2.0,
+        transactions: [],
+      };
+
+      const mockResponse: BankAccountResponseDto = {
+        id: accountId,
+        name: 'Updated Account',
+        type: 'SAVINGS_TFSA',
+        balance: 2000,
+        interestRate: 2.0,
+        transactions: [],
+      };
+
+      service.updateBankAccount.mockResolvedValue(mockResponse);
+
+      const result = await controller.updateBankAccount(accountId, updateBankAccountDto, user);
+
+      expect(result).toEqual(mockResponse);
+      expect(service.updateBankAccount).toHaveBeenCalledWith(user.id, accountId, updateBankAccountDto);
+    });
+
+    it('should throw NotFoundException if the bank account does not exist', async () => {
+      const user: User = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        age: 30,
+        password: 'hashedpassword',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const accountId = 1;
+
+      const updateBankAccountDto: UpdateBankAccountDto = {
+        name: 'Updated Account',
+        type: 'SAVINGS_TFSA',
+        balance: 2000,
+        interestRate: 2.0,
+        transactions: [],
+      };
+
+      service.updateBankAccount.mockRejectedValue(new NotFoundException('Bank account not found'));
+
+      await expect(controller.updateBankAccount(accountId, updateBankAccountDto, user)).rejects.toThrow(NotFoundException);
     });
   });
 });
