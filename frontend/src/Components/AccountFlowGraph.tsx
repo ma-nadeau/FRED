@@ -180,7 +180,7 @@ const AccountFlowGraph: React.FC = () => {
 
     console.log('Delete Account Submitted selectedAccountId:',selectedAccountId);
     
-    http('DELETE', `/account/${selectedAccountId}`)
+    http('DELETE', `bank-accounts/account/${selectedAccountId}`)
       .then(async (response) => {
         console.log('Response:', response);
       })
