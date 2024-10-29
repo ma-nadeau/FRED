@@ -18,17 +18,23 @@ import {
   Transaction,
   BankAccount,
 } from "../types/AccountFlowData"; // Import the example data
+import http from '@fred/lib/http';
+
+
 
 const AccountFlowGraph: React.FC = () => {
   const [timeRange, setTimeRange] = useState<string>("Last Month");
   const [selectedAccountId, setSelectedAccountId] = useState<number | "all">(
     "all"
   );
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+
 
   // Get all transactions from the exampleAccountFlowData
   const transactions = exampleAccountFlowData.bankAccounts.flatMap(
     (account) => account.transactions
   );
+
 
   // Utility function to get transactions for a specific account or all accounts
   const getTransactionsForAccount = (
@@ -165,6 +171,31 @@ const AccountFlowGraph: React.FC = () => {
     setSelectedAccountId(event.target.value as number | "all");
   };
 
+  const handleDeleteClick = () => {
+    setConfirmDelete(true); 
+  };
+
+
+  const handleConfirmDelete = () => {
+
+    http('DELETE', `bank-accounts/account/${selectedAccountId}`)
+      .then(async (response) => {})
+      .catch((error) => {
+        console.error('Error:', error);
+        let errorMessage = 'Delete Account Failed. Please try again.';
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+        console.error(errorMessage);
+        alert(errorMessage); // Add alert for the user
+      });
+  };
+
+  
+  const handleCancelDelete = () => {
+    setConfirmDelete(false); 
+  };
+
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>
@@ -173,13 +204,12 @@ const AccountFlowGraph: React.FC = () => {
       <Select
         value={selectedAccountId}
         onChange={handleAccountChange}
-        displayEmpty
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, color: "text.primary", backgroundColor: "background.paper" }}
       >
         <MenuItem value="all">All Accounts</MenuItem>
         {exampleAccountFlowData.bankAccounts.map((account: BankAccount) => (
           <MenuItem key={account.id} value={account.id}>
-            {account.name}
+        {account.name}
           </MenuItem>
         ))}
       </Select>
@@ -258,6 +288,38 @@ const AccountFlowGraph: React.FC = () => {
             Create Bank Account
           </Button>
         </Link>
+      </Box>
+
+      {/* Delete Bank Account button */}
+      <Box sx={{ mt: 2 }}>
+        {!confirmDelete ? (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleDeleteClick}
+          >
+            Delete Bank Account
+          </Button>
+        ) : (
+          <Box>
+            <Typography>Are you sure you want to delete this bank account?</Typography>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleConfirmDelete}
+              sx={{ mr: 1 }}
+            >
+              Yes, Delete
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleCancelDelete}
+            >
+              Cancel
+            </Button>
+          </Box>
+        )}
       </Box>
     </Box>
   );
