@@ -177,7 +177,6 @@ const AccountFlowGraph: React.FC = () => {
 
 
   const handleConfirmDelete = () => {
-    console.log('Delete Account Submitted selectedAccountId:', selectedAccountId);
 
     http('DELETE', `bank-accounts/account/${selectedAccountId}`)
       .then(async (response) => {
