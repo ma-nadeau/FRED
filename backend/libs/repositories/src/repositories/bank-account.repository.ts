@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'; // Assuming you have a PrismaService
 import { AccountType, MainAccountType, Transaction } from '@prisma/client'; // Generated types
-import { BankAccountDAO } from '@hubber/transfer-objects/bank-account.daos'; // Import the DAO
+import { BankAccountDAO } from '@fred/transfer-objects/bank-account.daos'; // Import the DAO
 
 @Injectable()
 export class BankAccountRepository {
@@ -55,14 +55,14 @@ export class BankAccountRepository {
         },
       },
       include: {
-        transactions: true, // Include transactions in the response
+        transactions: true,
         account: true,
       },
     });
 
-    return accounts.map(account => ({
+    return accounts.map((account) => ({
       ...account,
-      account: account.account[0], // Map the account property to a single object
+      account: account.account[0],
     })) as BankAccountDAO[];
   }
 
@@ -75,7 +75,7 @@ export class BankAccountRepository {
     const account = await this.prisma.bankAccount.findUnique({
       where: { id: accountId },
       include: {
-        transactions: true, // Include transactions in the response
+        transactions: true,
         account: true,
       },
     });
@@ -86,7 +86,7 @@ export class BankAccountRepository {
 
     return {
       ...account,
-      account: account.account[0], // Map the account property to a single object
+      account: account.account[0],
     } as BankAccountDAO;
   }
 

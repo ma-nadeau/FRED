@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RequestLoginDTO, ResponseLoginDTO, RequestSignupDTO, ResponseSignupDTO } from '../../libs/transfer-objects/src/dtos/auth'; // Adjust import path as needed
-import { FredUser, Public } from 'src/session/auth.decorator';
-import { UserDAO } from '@hubber/transfer-objects/daos';
+import { FredUser, Public } from '../session/auth.decorator';
+import { UserDAO } from '@fred/transfer-objects/daos';
 
 @Controller('auth')
 export class AuthController {

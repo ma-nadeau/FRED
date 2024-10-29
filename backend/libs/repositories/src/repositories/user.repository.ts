@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import * as bcrypt from 'bcrypt'; // For password hashing
-import { UserDAO } from "@hubber/transfer-objects/daos";
+import { UserDAO } from "@fred/transfer-objects/daos";
 
 @Injectable()
 export class UserRepository {
@@ -10,8 +10,14 @@ export class UserRepository {
 
     async findById(
         userId: number,
-    ): Promise<UserDAO> {
-        return this.prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
+    ): Promise<UserDAO | null> {
+        const user = await this.prisma.user.findFirst({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
+        return user ? {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            age: user.age
+        } : null;
     }
 
     async create(
@@ -85,5 +91,9 @@ export class UserRepository {
         const { password: _, ...userWithoutPassword } = user;
 
         return { success: true, user: userWithoutPassword };
+    }
+
+    async getUserCount(): Promise<number> {
+        return this.prisma.user.count();
     }
 }
