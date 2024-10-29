@@ -177,9 +177,8 @@ const AccountFlowGraph: React.FC = () => {
 
 
   const handleConfirmDelete = () => {
+    console.log('Delete Account Submitted selectedAccountId:', selectedAccountId);
 
-    console.log('Delete Account Submitted selectedAccountId:',selectedAccountId);
-    
     http('DELETE', `bank-accounts/account/${selectedAccountId}`)
       .then(async (response) => {
         console.log('Response:', response);
@@ -191,6 +190,7 @@ const AccountFlowGraph: React.FC = () => {
           errorMessage = error.response.data.message;
         }
         console.error(errorMessage);
+        alert(errorMessage); // Add alert for the user
       });
   };
 
