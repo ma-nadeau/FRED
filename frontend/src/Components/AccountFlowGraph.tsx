@@ -179,9 +179,7 @@ const AccountFlowGraph: React.FC = () => {
   const handleConfirmDelete = () => {
 
     http('DELETE', `bank-accounts/account/${selectedAccountId}`)
-      .then(async (response) => {
-        console.log('Response:', response);
-      })
+      .then(async (response) => {})
       .catch((error) => {
         console.error('Error:', error);
         let errorMessage = 'Delete Account Failed. Please try again.';
