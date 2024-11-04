@@ -22,92 +22,92 @@ Feature: Add Stock Share
             |  1 |              1 | AAPL   |         100.0 |     120.0 |        5 | 2024-11-01 15:15:15 |
     
     Scenario: Successfully attempt to add stock shares to portfolio
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall exist in the system
         Then the trading account "<name>" will contain the stock share with with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>"
         Then the number of different stocks in the trading account "<name>" shall be "2"
         Then the balance of trading account "<name>" shall be "580"
     
         Examples:
-            | symbol | quantity | purchasePrice |               name |
-            | AC     |      20 |             21 | Self-Directed TFSA |
+            | userId | symbol | quantity | purchasePrice |               name |
+            |      1 | AC     |      20 |             21 | Self-Directed TFSA |
     
     Scenario: Unsuccessfully attempt to add stock shares to portfolio due to missing symbol
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples:
-            | symbol | quantity | purchasePrice |               name | error |
-            |        |      20 |             21 | Self-Directed TFSA | Missing symbol |
+            | userId | symbol | quantity | purchasePrice |               name | error |
+            |      1 |        |      20 |             21 | Self-Directed TFSA | Missing symbol |
 
     Scenario: Unsuccessfully attempt to add stock shares to portfolio due to not specifying the quantity
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples:
-            | symbol | quantity | purchasePrice |               name | error |
-            | AC     |          |            21 | Self-Directed TFSA | Missing quantity |
+            | userId | symbol | quantity | purchasePrice |               name | error |
+            |      1 | AC     |          |            21 | Self-Directed TFSA | Missing quantity |
 
     Scenario: Unsuccessfully attempt to add stock shares to portfolio due to not specifying the purchasePrice
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples:
-            | symbol | quantity | purchasePrice |               name | error |
-            | AC     |      20  |               | Self-Directed TFSA | Missing purchase price |
+            | userId | symbol | quantity | purchasePrice |               name | error |
+            |      1 | AC     |      20  |               | Self-Directed TFSA | Missing purchase price |
 
     Scenario: Unsuccessfully attempt to add stock shares to portfolio due to not specifying the target trading account
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples:
-            | symbol | quantity | purchasePrice | name | error |
-            | AC     |      20  |            21 |      | Missing account name |
+            | userId | symbol | quantity | purchasePrice | name | error |
+            |      1 | AC     |      20  |            21 |      | Missing account name |
 
     Scenario: Unsuccessfully attempt to add stock shares to portfolio due to non-existent/incorrect symbol
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples:
-            | symbol | quantity | purchasePrice |               name | error |
-            |  MONEY |      20 |             21 | Self-Directed TFSA | Invalid symbol |
+            | userId | symbol | quantity | purchasePrice |               name | error |
+            |      1 |  MONEY |      20 |             21 | Self-Directed TFSA | Invalid symbol |
 
     Scenario: Unsuccessfully attempt to add stock shares to portfolio due to negative quantity
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples:
-            | symbol | quantity | purchasePrice |               name | error |
-            | AC     |       -1 |            21 | Self-Directed TFSA | Invalid quantity |
+            | userId | symbol | quantity | purchasePrice |               name | error |
+            |      1 | AC     |       -1 |            21 | Self-Directed TFSA | Invalid quantity |
 
     Scenario: Unsuccessfully attempt to add stock shares to portfolio due to negative purchasePrice
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples:
-            | symbol | quantity | purchasePrice |               name | error |
-            | AC     |      20  |          -100 | Self-Directed TFSA | Invalid purchase price |
+            | userId | symbol | quantity | purchasePrice |               name | error |
+            |      1 | AC     |      20  |          -100 | Self-Directed TFSA | Invalid purchase price |
 
     Scenario: Unsuccessfully attempt to add stock shares to portfolio due to non-existent/incorrect target trading account
-        When the user attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
+        When the user "<userId>" attempts to add stock share with symbol "<symbol>", quantity "<quantity>", purchase price "<purchasePrice>" to their trading account "<name>"
         Then the stock share with symbol "<symbol>", quantity "<quantity>", and purchase price "<purchasePrice>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples:
-            | symbol | quantity | purchasePrice |        name | error |
-            | AC     |      20  |            21 | Don't Exist | Missing account name |
+            | userId | symbol | quantity | purchasePrice |        name | error |
+            |      1 | AC     |      20  |            21 | Don't Exist | Missing account name |

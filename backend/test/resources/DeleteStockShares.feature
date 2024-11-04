@@ -22,51 +22,51 @@ Feature: Delete Stock Share
             |  1 |              1 | AAPL   |         100.0 |     120.0 |        5 | 2024-11-01 15:15:15 |
 
     Scenario: Successfully delete stock share from portfolio
-        When the user attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
+        When the user "<userId>" attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
         Then the stock share with symbol "<symbol>", associated with trading account "<name>" shall not exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "0"
         Then the balance of trading account "<name>" shall be "1600"
         
         Examples: 
-            | symbol | name |
-            | AAPL   | Self-Directed TFSA |
+            | userId | symbol | name |
+            |      1 | AAPL   | Self-Directed TFSA |
 
     Scenario: Unsuccessfully delete stock share from portfolio due to missing symbol
-        When the user attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
+        When the user "<userId>" attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
         Then the stock share with symbol "<symbol>", associated with trading account "<name>" shall exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples: 
-            | symbol |               name |          error |
-            |        | Self-Directed TFSA | Missing symbol |
+            | userId | symbol |               name |          error |
+            |      1 |        | Self-Directed TFSA | Missing symbol |
 
     Scenario: Unsuccessfully delete stock share from portfolio due to missing trading account name
-        When the user attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
+        When the user "<userId>" attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
         Then the stock share with symbol "<symbol>", associated with trading account "<name>" shall exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples: 
-            | symbol | name |                        error |
-            | AAPL   |      | Missing trading account name |
+            | userId | symbol | name |                        error |
+            |      1 | AAPL   |      | Missing trading account name |
 
     Scenario: Unsuccessfully delete stock share from portfolio due to incorrect/non-existent symbol
-        When the user attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
+        When the user "<userId>" attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
         Then the stock share with symbol "<symbol>", associated with trading account "<name>" shall exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples: 
-            | symbol |               name |             error |
-            |  MONEY | Self-Directed TFSA | Nonexistent share |
+            | userId | symbol |               name |             error |
+            |      1 |  MONEY | Self-Directed TFSA | Nonexistent share |
 
     Scenario: Unsuccessfully delete stock share from portfolio due to incorrect/non-existent trading account name
-        When the user attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
+        When the user "<userId>" attempts to delete stock shares from their trading account "<name>" with symbol "<symbol>"
         Then the stock share with symbol "<symbol>", associated with trading account "<name>" shall exist in the system
         Then the number of different stocks in the trading account "<name>" shall be "1"
         Then the error "<error>" shall be raised
 
         Examples: 
-            | symbol |     name |               error |
-            | AAPL   | NotExist | Nonexistent account |
+            | userId | symbol |     name |               error |
+            |      1 | AAPL   | NotExist | Nonexistent account |
