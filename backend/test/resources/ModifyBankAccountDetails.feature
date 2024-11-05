@@ -25,7 +25,7 @@ Feature: Modify Bank Account Details
     Then the error "<error>" shall be raised
 
   Examples:
-      | bankAccountId | userId | type     | name     | balance | error 
+      | bankAccountId | userId | type     | name     | balance | error |
       | 101           | 1      | Savings  | mortgage | 5000.00 | name cannot be empty |
       | 102           | 1      | Checking | personal | 2500.00 | name cannot be empty |
   
@@ -35,7 +35,7 @@ Feature: Modify Bank Account Details
     Then the error "<error>" shall be raised
 
     Examples:
-      | bankAccountId | userId | type     | name     | balance | error 
+      | bankAccountId | userId | type     | name     | balance | error |
       | 101           | 1      | Savings  | mortgage | 5000.00 | invalid name |
       | 102           | 1      | Checking | personal | 2500.00 | invalid name |
 
