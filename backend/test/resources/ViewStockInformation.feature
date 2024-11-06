@@ -1,10 +1,10 @@
-Feature: View Stock Details in Portfolio
+Feature: View Stock Information
   As a user of Fred,
-  I would like to view, for each stock in my portfolio, the ticker symbol, the price I bought for, the price now, number of shares, and profit,
-  So that I can see how much money I made.
+  I would like to view the ticker symbol, the price I bought for, the current price, and number of shares for each stock in my portfolio,
+  So that I can have an overview of my stock investments.
 
   Background:
-    Given the user has the following stocks in their portfolio:
+    Given I have the following stocks in my portfolio:
       | Ticker | Shares | Purchase Price |
       | AAPL   | 10     | 150            |
       | TSLA   | 5      | 700            |
@@ -15,64 +15,126 @@ Feature: View Stock Details in Portfolio
       | TSLA   | 680           |
       | AMZN   | 3300          |
 
-  Scenario: View stock details in portfolio
-    When the user navigates to the "My Portfolio" page
-    Then the system should display the following details for each stock:
-      | Ticker | Purchase Price | Current Price | Shares | Profit   |
-      | AAPL   | $150           | $160          | 10     | $100     |
-      | TSLA   | $700           | $680          | 5      | -$100    |
-      | AMZN   | $3,200         | $3,300        | 2      | $200     |
-    And the profit is calculated as (Current Price - Purchase Price) × Shares
-
-  Scenario: View total profit in portfolio
-    When the user views the portfolio summary
-    Then the system should display the total profit as "$200"
-    # Calculations:
-    # AAPL profit: (160 - 150) × 10 = $100
-    # TSLA profit: (680 - 700) × 5 = -$100
-    # AMZN profit: (3300 - 3200) × 2 = $200
-    # Total profit: $100 - $100 + $200 = $200
+  Scenario: View stock information in portfolio
+    When I view my stock portfolio
+    Then I should see the following stock information:
+      | Ticker | Shares | Purchase Price | Current Price |
+      | AAPL   | 10     | $150           | $160          |
+      | TSLA   | 5      | $700           | $680          |
+      | AMZN   | 2      | $3,200         | $3,300        |
 
   Scenario: Stock with no current price available
     Given the current market price for "TSLA" is unavailable
-    When the user views their portfolio
-    Then the system should display "N/A" for the current price and profit of "TSLA"
-    And display a message "Current price data is unavailable for some stocks."
+    When I view my stock portfolio
+    Then I should see the following stock information:
+      | Ticker | Shares | Purchase Price | Current Price |
+      | AAPL   | 10     | $150           | $160          |
+      | TSLA   | 5      | $700           | N/A           |
+      | AMZN   | 2      | $3,200         | $3,300        |
+    And I should be informed that current price data is unavailable for some stocks
 
   Scenario: Portfolio with no stocks
-    Given the user has no stocks in their portfolio
-    When the user navigates to the "My Portfolio" page
-    Then the system should display a message "You have no stocks in your portfolio."
-    And provide an option to "Add Stocks"
+    Given I have no stocks in my portfolio
+    When I view my stock portfolio
+    Then I should see a message "You have no stocks in your portfolio."
 
-  Scenario: Update stock purchase price
-    Given the user wants to update the purchase price of "AAPL"
-    When the user edits the purchase price to "$155"
-    Then the system should update the purchase price for "AAPL" to "$155"
-    And recalculate the profit for "AAPL" as "$50"
-    # Calculation: (160 - 155) × 10 = $50
+  Scenario: Add a new stock to the portfolio
+    Given I have the following stock in my portfolio:
+      | Ticker | Shares | Purchase Price |
+      | AAPL   | 10     | 150            |
+    When I add a new stock with the following information:
+      | Ticker | Shares | Purchase Price |
+      | GOOGL  | 3      | 2000           |
+    Then my portfolio should include:
+      | Ticker | Shares | Purchase Price | Current Price |
+      | AAPL   | 10     | $150           | $160          |
+      | GOOGL  | 3      | $2,000         | [Current Price of GOOGL] |
+
+  Scenario: View stock information after selling shares
+    Given I have the following stock in my portfolio:
+      | Ticker | Shares | Purchase Price |
+      | AAPL   | 10     | 150            |
+    And I have sold "5" shares of "AAPL"
+    When I view my stock portfolio
+    Then I should see the following stock information:
+      | Ticker | Shares | Purchase Price | Current Price |
+      | AAPL   | 5      | $150           | $160          |
+
+  Scenario: Handle fractional shares
+    Given I have the following stock in my portfolio:
+      | Ticker | Shares | Purchase Price |
+      | NFLX   | 0.75   | 500            |
+    And the current market price for "NFLX" is "$550"
+    When I view my stock portfolio
+    Then I should see the following stock information:
+      | Ticker | Shares | Purchase Price | Current Price |
+      | NFLX   | 0.75   | $500           | $550          |
 
   Scenario: Real-time update of current prices
-    Given the user is viewing the "My Portfolio" page
+    Given I am viewing my stock portfolio
+    And the current market prices are:
+      | Ticker | Current Price |
+      | AAPL   | 160           |
+      | TSLA   | 680           |
     When the market price of "AAPL" changes to "$162"
-    Then the system should update the current price of "AAPL" to "$162"
-    And recalculate the profit for "AAPL" as "$120"
-    # Calculation: (162 - 150) × 10 = $120
+    Then I should see the current price for "AAPL" updated to "$162" in my portfolio
 
-  Scenario: View profit in percentage
-    When the user opts to view profit as a percentage
-    Then the system should display the following details:
-      | Ticker | Profit   | Profit (%) |
-      | AAPL   | $100     | 6.67%      |
-      | TSLA   | -$100    | -2.86%     |
-      | AMZN   | $200     | 6.25%      |
-    # Profit (%) Calculation: (Profit / (Purchase Price × Shares)) × 100%
+  Scenario: Display stocks sorted alphabetically
+    Given I have the following stocks in my portfolio:
+      | Ticker | Shares | Purchase Price |
+      | TSLA   | 5      | 700            |
+      | AAPL   | 10     | 150            |
+      | AMZN   | 2      | 3200           |
+    When I view my stock portfolio sorted alphabetically
+    Then I should see the stocks in the following order:
+      | Ticker | Shares | Purchase Price | Current Price |
+      | AAPL   | 10     | $150           | $160          |
+      | AMZN   | 2      | $3,200         | $3,300        |
+      | TSLA   | 5      | $700           | $680          |
 
-  Scenario: Export portfolio details
-    When the user selects "Export Portfolio"
-    Then the system should provide a downloadable file containing all stock details
-    And the file should include ticker symbol, purchase price, current price, number of shares, and profit
+  Scenario: View detailed stock information
+    Given I have the following stock in my portfolio:
+      | Ticker | Shares | Purchase Price |
+      | AAPL   | 10     | 150            |
+    When I request detailed information for "AAPL"
+    Then I should see the following additional information:
+      | Field                   | Value                     |
+      | Company Name            | Apple Inc.                |
+      | Market Capitalization   | [Market Cap of AAPL]      |
+      | 52-Week High            | [52-Week High of AAPL]    |
+      | 52-Week Low             | [52-Week Low of AAPL]     |
+      | Dividend Yield          | [Dividend Yield of AAPL]  |
 
-  Scenario: Display stocks sorted by profit
-    When the user sorts the portfolio by "Profit"
-    Then the stocks should be displayed in descending order of profit
+  Scenario: Stock with high-precision purchase price
+    Given I have the following stock in my portfolio:
+      | Ticker | Shares | Purchase Price |
+      | ABCD   | 1000   | 0.12345        |
+    And the current market price for "ABCD" is "$0.13000"
+    When I view my stock portfolio
+    Then I should see the following stock information:
+      | Ticker | Shares | Purchase Price | Current Price |
+      | ABCD   | 1000   | $0.12345       | $0.13000      |
+
+  Scenario: Display stock information in different currencies
+    Given I prefer to view amounts in "EUR"
+    And the exchange rate is 1 USD = 0.85 EUR
+    When I view my stock portfolio
+    Then I should see the stock information with amounts converted to EUR:
+      | Ticker | Shares | Purchase Price (EUR) | Current Price (EUR) |
+      | AAPL   | 10     | €127.50              | €136.00             |
+      | TSLA   | 5      | €595.00              | €578.00             |
+    # Calculations:
+    # AAPL Purchase Price in EUR: $150 × 0.85 = €127.50
+    # AAPL Current Price in EUR: $160 × 0.85 = €136.00
+    # TSLA Purchase Price in EUR: $700 × 0.85 = €595.00
+    # TSLA Current Price in EUR: $680 × 0.85 = €578.00
+
+  Scenario: No current price available for any stock
+    Given I have the following stocks in my portfolio:
+      | Ticker | Shares | Purchase Price |
+      | AAPL   | 10     | 150            |
+      | TSLA   | 5      | 700            |
+    And current market prices are unavailable
+    When I view my stock portfolio
+    Then I should see the current price as "N/A" for all stocks
+    And I should be informed that current price data is unavailable
