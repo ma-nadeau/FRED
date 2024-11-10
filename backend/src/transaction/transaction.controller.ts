@@ -2,9 +2,13 @@ import {
   Controller,
   Post,
   Body,
+  Delete,
   UseGuards,
+  HttpCode,
   HttpStatus,
+  Param,
   HttpException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
@@ -34,5 +38,15 @@ export class TransactionController {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  // Delete a specific bank account by its ID, only if it belongs to the authenticated user
+  @Delete('transactions/:transactionsId')
+  @HttpCode(HttpStatus.NO_CONTENT) // Return 204 No Content on successful deletion
+  async deleteTransaction(
+    @Param('transactionsId', ParseIntPipe) transactionsId: number,
+    @FredUser() user: User, // Get the currently authenticated user
+  ): Promise<void> {
+    await this.transactionService.deleteTransaction(transactionsId, user.id);
   }
 }

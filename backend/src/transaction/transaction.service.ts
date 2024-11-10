@@ -1,5 +1,5 @@
 // src/transaction/transaction.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
 import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/transaction-response.dto';
@@ -53,5 +53,58 @@ export class TransactionService {
       amount: transaction.amount,
       accountId: transaction.accountId,
     };
+  }
+
+  /**
+   * Retrieves a specific transaction by its ID for a user.
+   * @param transactionId - The ID of the transaction.
+   * @param userId - The ID of the user.
+   * @returns The transaction as a response DTO.
+   */
+  async getTransactionById(
+    transactionId: number,
+    userId: number,
+  ): Promise<TransactionResponseDto> {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: transactionId },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found.');
+    }
+
+    const account = await this.prisma.bankAccount.findUnique({
+      where: { id: transaction.accountId },
+    });
+
+    if (!account || account.id !== userId) {
+      throw new ForbiddenException(
+        'You do not have access to this transaction.',
+      );
+    }
+
+    return this.mapToTransactionResponseDto(transaction);
+  }
+
+  /**
+   * Deletes a transaction by its ID for a user.
+   * @param transactionId - The ID of the transaction.
+   * @param userId - The ID of the user.
+   */
+  async deleteTransaction(transactionId: number, userId: number): Promise<void> {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: transactionId },
+      include: { account: true },
+    });
+
+    if (!transaction || !transaction.account || transaction.account.id !== userId) {
+      throw new ForbiddenException(
+        'You do not have access to this transaction.',
+      );
+    }
+
+    await this.prisma.transaction.delete({
+      where: { id: transactionId },
+    });
   }
 }
