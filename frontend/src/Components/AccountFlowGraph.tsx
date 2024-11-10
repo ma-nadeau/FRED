@@ -321,6 +321,18 @@ const AccountFlowGraph: React.FC = () => {
           </Box>
         )}
       </Box>
+      
+      {/* Manage expenses button */}
+      <Box sx={{ mt: 2 }}>
+        <Link href="/expenses_collection" passHref>
+          <Button
+            variant="contained"
+            color="primary"
+          >
+            Manage Expenses
+          </Button>
+        </Link>
+      </Box>
     </Box>
   );
 };

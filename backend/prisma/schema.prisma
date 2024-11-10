@@ -72,12 +72,24 @@ enum AccountType {
   CREDIT
 }
 
+enum TransactionCategory {
+  GROCERIES
+  CAR
+  RENT
+  TUITION 
+  BILLS
+  HEALTH
+  MISCELLANEOUS
+  OUTINGS
+}
+
 model Transaction {
   id             Int        @id @default(autoincrement())
   accountId      Int
   amount         Float
   transactionAt  DateTime   @default(now())
   type           TransactionType
+  category       TransactionCategory
   recurringCashFlowId Int?
   description    String?
   account        BankAccount?   @relation(fields: [accountId], references: [id], onDelete: Cascade)
