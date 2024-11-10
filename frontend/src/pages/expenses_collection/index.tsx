@@ -14,6 +14,35 @@ const AccountType = {
 
 function DisplayExpenses() {
     //View expenses
+    var bankAccountData:any = '';
+    const getExpenses = () => {
+        http('GET', '/bank-accounts')
+            .then(async (response) => {
+                console.log('Response:', response);
+                bankAccountData = response;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                let errorMessage = 'Failed to get bank account details for user. Please try again.';
+
+                if (error.response?.data?.message) {
+                    if (Array.isArray(error.response.data.message)) {
+                        errorMessage = error.response.data.message
+                            .map(err => Object.values(err.constraints).join(', '))
+                            .join(', ');
+                    } else if (typeof error.response.data.message === 'string') {
+                        errorMessage = error.response.data.message;
+                    } else if (typeof error.response.data.message === 'object') {
+                        errorMessage = JSON.stringify(error.response.data.message);
+                    }
+                }
+            });
+    }
+
+    return( <>
+        {getExpenses()}
+        <h1>Expenses</h1>
+    </>);
 }
 
 export default function CreateExpensesCollectionPage() {
@@ -33,7 +62,7 @@ export default function CreateExpensesCollectionPage() {
                     Back
                 </Button>
             </Link>
-            <h1>Expenses</h1>
+            <DisplayExpenses/>
         </Box>
     );
 }

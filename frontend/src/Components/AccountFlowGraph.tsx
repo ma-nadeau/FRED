@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BarChart } from "@mui/x-charts";
 import { LineChart } from "@mui/x-charts";
 import {
@@ -28,7 +28,11 @@ const AccountFlowGraph: React.FC = () => {
     "all"
   );
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+  useEffect(() => {
+    setIsLoggedIn(window.localStorage.getItem('token')!==null);
+  }, []);
 
   // Get all transactions from the exampleAccountFlowData
   const transactions = exampleAccountFlowData.bankAccounts.flatMap(
@@ -196,6 +200,18 @@ const AccountFlowGraph: React.FC = () => {
     setConfirmDelete(false); 
   };
 
+  const getExpenses = () => {
+    if(isLoggedIn){
+      http('GET', '/bank-accounts')
+        .then(async (response) => {
+            console.log('Response:', response);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+  }
+
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>
@@ -323,17 +339,23 @@ const AccountFlowGraph: React.FC = () => {
       </Box>
       
       {/* Manage expenses button */}
-      <Box sx={{ mt: 2 }}>
-        <Link href="/expenses_collection" passHref>
-          <Button
-            variant="contained"
-            color="primary"
-          >
-            Manage Expenses
-          </Button>
-        </Link>
-      </Box>
+      {isLoggedIn && 
+        <Box sx={{ mt: 2 }}>
+          <Link href="/expenses_collection" passHref>
+            <Button
+              variant="contained"
+              color="primary"
+            >
+              Manage Expenses
+            </Button>
+          </Link>
+        </Box>
+      }
+      
+      {getExpenses()}
     </Box>
+
+    
   );
 };
 
