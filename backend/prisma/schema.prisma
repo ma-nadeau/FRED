@@ -80,6 +80,7 @@ enum TransactionCategory {
   BILLS
   HEALTH
   MISCELLANEOUS
+  SALARY
   OUTINGS
 }
 

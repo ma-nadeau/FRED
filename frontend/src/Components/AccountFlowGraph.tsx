@@ -202,9 +202,25 @@ const AccountFlowGraph: React.FC = () => {
 
   const getExpenses = () => {
     if(isLoggedIn){
+      let retrievedData = {};
+      const expenses = [] as any[];
       http('GET', '/bank-accounts')
         .then(async (response) => {
-            console.log('Response:', response);
+            if(response.data){
+              response.data.forEach( (bankAccount:any) => {
+                if(bankAccount.transactions.length>0){
+                  bankAccount.transactions.forEach( (transaction:any) => {
+                    if(transaction.type === "WITHDRAWAL"){
+                      expenses.push(transaction);
+                    }
+                  })
+                }
+              });
+            }
+            else{
+              console.error('No bank accounts exist')
+            }
+            console.log(expenses);
         })
         .catch((error) => {
             console.error('Error:', error);

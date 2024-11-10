@@ -146,13 +146,14 @@ export class BankAccountService {
       balance: account.balance ?? 0,
       interestRate: account.interestRate ?? 0,
       transactions:
-        account.transactions?.map((transaction: { id: any; accountId: any; type: any; amount: any; transactionAt: { toISOString: () => any; }; description: any; }) => ({
+        account.transactions?.map((transaction: { id: any; accountId: any; type: any; amount: any; transactionAt: { toISOString: () => any; }; description: any; category:any }) => ({
           id: transaction.id,
           accountId: transaction.accountId,
           type: transaction.type,
           amount: transaction.amount,
           transactionAt: transaction.transactionAt.toISOString(),
           description: transaction.description,
+          category: transaction.category
         })) ?? [],
     };
   }
