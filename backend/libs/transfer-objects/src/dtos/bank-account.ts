@@ -70,6 +70,17 @@ export class TransactionDto {
 
   @IsString()
   transactionAt: string; // ISO date string (ensure it's a string in the response)
+
+  @IsOptional()
+  recurringCashFlow?: RecurringCashFlowDTO | null;
+}
+
+export class RecurringCashFlowDTO{
+  @IsNumber()
+  id: number;
+
+  @IsString()
+  name:string;
 }
 
 // DTO for bank account response (when returning data to the frontend)

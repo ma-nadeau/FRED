@@ -201,9 +201,8 @@ const AccountFlowGraph: React.FC = () => {
   };
 
   const getExpenses = () => {
+    const expenses = new Array();
     if(isLoggedIn){
-      let retrievedData = {};
-      const expenses = [] as any[];
       http('GET', '/bank-accounts')
         .then(async (response) => {
             if(response.data){
@@ -220,12 +219,12 @@ const AccountFlowGraph: React.FC = () => {
             else{
               console.error('No bank accounts exist')
             }
-            console.log(expenses);
         })
         .catch((error) => {
             console.error('Error:', error);
         });
     }
+    return expenses;
   }
 
   return (
@@ -368,7 +367,7 @@ const AccountFlowGraph: React.FC = () => {
         </Box>
       }
       
-      {getExpenses()}
+      {console.log(getExpenses())}
     </Box>
 
     
