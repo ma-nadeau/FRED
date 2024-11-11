@@ -150,7 +150,11 @@ describe('BankAccountRepository', () => {
           },
         },
         include: {
-          transactions: true,
+          transactions: {
+            include:{
+              recurringCashFlow: true,
+            }
+          },
           account: true,
         },
       });
