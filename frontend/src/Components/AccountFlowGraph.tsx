@@ -202,6 +202,7 @@ const AccountFlowGraph: React.FC = () => {
 
   const getExpenses = () => {
     const expenses = new Array();
+    //const [data, setData] = useState<any[]>([]);
     if(isLoggedIn){
       http('GET', '/bank-accounts')
         .then(async (response) => {
@@ -224,6 +225,7 @@ const AccountFlowGraph: React.FC = () => {
             console.error('Error:', error);
         });
     }
+    console.log(expenses);
     return expenses;
   }
 
@@ -364,13 +366,12 @@ const AccountFlowGraph: React.FC = () => {
               Manage Expenses
             </Button>
           </Link>
+          
+          <h1>{getExpenses()}</h1>
         </Box>
       }
-      
-      {console.log(getExpenses())}
     </Box>
 
-    
   );
 };
 
