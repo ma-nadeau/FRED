@@ -1,25 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Select, MenuItem, SelectChangeEvent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { mockBankAccounts, mockTransactions, BankAccount, Transaction, TransactionCategory } from '../view_expenses/mockData';
 import http from '../../lib/http';
+
+interface Transaction {
+  accountID: number;
+  amount: number;
+  category: string;
+  description: string;
+  id: number;
+  recurringCashFlowID: number;
+  recurringCashFlowName: string;
+  transactionAt: Date;
+  type: string;
+}
+
+interface BankAccount {
+  id: number;
+  name: string;
+  transactions: Transaction[];
+}
 
 const ExpensesCollection: React.FC = () => {
   const [filterType, setFilterType] = useState<string>('none');
   const [selectedFilter, setSelectedFilter] = useState<string | number>('all');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
 
   useEffect(() => {
-    const getExpenses = async () => {
+    const getBankAccounts = async () => {
       try {
-        const response = await http('GET', '/api/expenses');
-        setTransactions(response.data);
+        const response = await http('GET', '/bank-accounts');
+        const accounts: BankAccount[] = response.data.map((account: any) => ({
+          id: account.id,
+          name: account.name,
+          transactions: account.transactions.map((transaction: any) => ({
+            accountID: transaction.accountId,
+            amount: transaction.amount,
+            category: transaction.category,
+            description: transaction.description,
+            id: transaction.id,
+            recurringCashFlowID: transaction.recurringCashFlowID,
+            recurringCashFlowName: transaction.recurringCashFlowName,
+            transactionAt: new Date(transaction.transactionAt),
+            type: transaction.type,
+          })),
+        }));
+        setBankAccounts(accounts);
+        setTransactions(accounts.flatMap(account => account.transactions));
       } catch (error) {
-        console.error('Error fetching expenses:', error);
-        setTransactions(mockTransactions); // Fallback to mock data
+        console.error('Error fetching bank accounts:', error);
       }
     };
 
-    getExpenses();
+    getBankAccounts();
   }, []);
 
   const handleFilterTypeChange = (event: SelectChangeEvent<string>) => {
@@ -36,7 +69,7 @@ const ExpensesCollection: React.FC = () => {
       return transaction.category === selectedFilter;
     }
     if (filterType === 'account' && selectedFilter !== 'all') {
-      return transaction.accountId === selectedFilter;
+      return transaction.accountID === selectedFilter;
     }
     return true;
   });
@@ -69,7 +102,7 @@ const ExpensesCollection: React.FC = () => {
             sx={{ minWidth: 200 }}
           >
             <MenuItem value="all">All Categories</MenuItem>
-            {Object.keys(TransactionCategory).map((category) => (
+            {Array.from(new Set(transactions.map((transaction) => transaction.category))).map((category) => (
               <MenuItem key={category} value={category}>
                 {category}
               </MenuItem>
@@ -85,7 +118,7 @@ const ExpensesCollection: React.FC = () => {
             sx={{ minWidth: 200 }}
           >
             <MenuItem value="all">All Accounts</MenuItem>
-            {mockBankAccounts.map((account) => (
+            {bankAccounts.map((account) => (
               <MenuItem key={account.id} value={account.id}>
                 {account.name}
               </MenuItem>
@@ -113,10 +146,13 @@ const ExpensesCollection: React.FC = () => {
                 <TableCell>{transaction.amount}</TableCell>
                 <TableCell>{new Date(transaction.transactionAt).toLocaleDateString()}</TableCell>
                 <TableCell>{transaction.category}</TableCell>
-                <TableCell>{mockBankAccounts.find((account) => account.id === transaction.accountId)?.name}</TableCell>
+                <TableCell>{bankAccounts.find((account) => account.id === transaction.accountID)?.name}</TableCell>
                 <TableCell>{transaction.type}</TableCell>
                 <TableCell>{transaction.description || 'N/A'}</TableCell>
                 <TableCell>
+                  <Button variant="contained" color="primary" style={{ marginRight: '8px' }}>
+                    Modify
+                  </Button>
                   <Button variant="contained" color="secondary">
                     Delete
                   </Button>
