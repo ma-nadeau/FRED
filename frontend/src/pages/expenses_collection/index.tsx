@@ -1,68 +1,137 @@
-import React, { useState } from 'react';
-import { TextField, Button, Grid, Typography, Paper, Box, Snackbar, Select, MenuItem, InputLabel, FormControl, IconButton, SvgIcon } from '@mui/material';
-import Link from 'next/link';
-import http from '@fred/lib/http';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Select, MenuItem, SelectChangeEvent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { mockBankAccounts, mockTransactions, BankAccount, Transaction, TransactionCategory } from '../view_expenses/mockData';
+import http from '../../lib/http';
 
-// Define the AccountType enum values
-const AccountType = {
-    CHECKING: 'CHECKING',
-    SAVINGS_TFSA: 'SAVINGS_TFSA',
-    SAVINGS_RRSP: 'SAVINGS_RRSP',
-    SAVINGS_TFSH: 'SAVINGS_TFSH',
-    CREDIT: 'CREDIT',
+const ExpensesCollection: React.FC = () => {
+  const [filterType, setFilterType] = useState<string>('none');
+  const [selectedFilter, setSelectedFilter] = useState<string | number>('all');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    const getExpenses = async () => {
+      try {
+        const response = await http('GET', '/api/expenses');
+        setTransactions(response.data);
+      } catch (error) {
+        console.error('Error fetching expenses:', error);
+        setTransactions(mockTransactions); // Fallback to mock data
+      }
+    };
+
+    getExpenses();
+  }, []);
+
+  const handleFilterTypeChange = (event: SelectChangeEvent<string>) => {
+    setFilterType(event.target.value);
+    setSelectedFilter('all');
+  };
+
+  const handleFilterChange = (event: SelectChangeEvent<string | number>) => {
+    setSelectedFilter(event.target.value);
+  };
+
+  const filteredTransactions = transactions.filter((transaction) => {
+    if (filterType === 'category' && selectedFilter !== 'all') {
+      return transaction.category === selectedFilter;
+    }
+    if (filterType === 'account' && selectedFilter !== 'all') {
+      return transaction.accountId === selectedFilter;
+    }
+    return true;
+  });
+
+  return (
+    <Box sx={{ p: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h4" sx={{ textAlign: 'center' }}>
+          Expenses Collection
+        </Typography>
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+        <Select
+          value={filterType}
+          onChange={handleFilterTypeChange}
+          displayEmpty
+          sx={{ minWidth: 200 }}
+        >
+          <MenuItem value="none">No Filter</MenuItem>
+          <MenuItem value="category">Filter by Category</MenuItem>
+          <MenuItem value="account">Filter by Bank Account</MenuItem>
+        </Select>
+
+        {filterType === 'category' && (
+          <Select
+            value={selectedFilter}
+            onChange={handleFilterChange}
+            displayEmpty
+            sx={{ minWidth: 200 }}
+          >
+            <MenuItem value="all">All Categories</MenuItem>
+            {Object.keys(TransactionCategory).map((category) => (
+              <MenuItem key={category} value={category}>
+                {category}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+
+        {filterType === 'account' && (
+          <Select
+            value={selectedFilter}
+            onChange={handleFilterChange}
+            displayEmpty
+            sx={{ minWidth: 200 }}
+          >
+            <MenuItem value="all">All Accounts</MenuItem>
+            {mockBankAccounts.map((account) => (
+              <MenuItem key={account.id} value={account.id}>
+                {account.name}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </Box>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Amount</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell>Bank Account</TableCell>
+              <TableCell>Type</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredTransactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>{transaction.amount}</TableCell>
+                <TableCell>{new Date(transaction.transactionAt).toLocaleDateString()}</TableCell>
+                <TableCell>{transaction.category}</TableCell>
+                <TableCell>{mockBankAccounts.find((account) => account.id === transaction.accountId)?.name}</TableCell>
+                <TableCell>{transaction.type}</TableCell>
+                <TableCell>{transaction.description || 'N/A'}</TableCell>
+                <TableCell>
+                  <Button variant="contained" color="secondary">
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Button variant="contained" color="primary" sx={{ mt: 2 }} href="/view_expenses">
+        Back to View Expenses
+      </Button>
+    </Box>
+  );
 };
 
-function DisplayExpenses() {
-    //View expenses
-    var bankAccountData:any = '';
-    const getExpenses = () => {
-        http('GET', '/bank-accounts')
-            .then(async (response) => {
-                console.log('Response:', response);
-                bankAccountData = response;
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                let errorMessage = 'Failed to get bank account details for user. Please try again.';
-
-                if (error.response?.data?.message) {
-                    if (Array.isArray(error.response.data.message)) {
-                        errorMessage = error.response.data.message
-                            .map(err => Object.values(err.constraints).join(', '))
-                            .join(', ');
-                    } else if (typeof error.response.data.message === 'string') {
-                        errorMessage = error.response.data.message;
-                    } else if (typeof error.response.data.message === 'object') {
-                        errorMessage = JSON.stringify(error.response.data.message);
-                    }
-                }
-            });
-    }
-
-    return( <>
-        {getExpenses()}
-        <h1>Expenses</h1>
-    </>);
-}
-
-export default function CreateExpensesCollectionPage() {
-    return (
-        <Box sx={{ p: 2 }}>
-            <Link href="/" passHref>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={
-                        <SvgIcon>
-                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                        </SvgIcon>
-                    }
-                    sx={{ mb: 2 }}
-                >
-                    Back
-                </Button>
-            </Link>
-            <DisplayExpenses/>
-        </Box>
-    );
-}
+export default ExpensesCollection;
