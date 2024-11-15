@@ -9,6 +9,8 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { BankAccountController } from './bank/bank-account.controller';
 import { BankAccountService } from './bank/bank-account.service';
+import {TransactionController} from "./transaction/transaction.controller";
+import {TransactionService} from "./transaction/transaction.service";
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { BankAccountService } from './bank/bank-account.service';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController, BankAccountController], 
+  controllers: [AuthController, BankAccountController, TransactionController],
   providers: [
     {
       provide: APP_INTERCEPTOR,
@@ -37,7 +39,9 @@ import { BankAccountService } from './bank/bank-account.service';
       useClass: SessionGuard,
     },
     AuthService,
-    BankAccountService
+    BankAccountService,
+    TransactionService,
+      
   ],
 })
 export class AppModule {}
