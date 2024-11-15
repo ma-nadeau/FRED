@@ -3,25 +3,52 @@ import axios from 'axios';
 const API_KEY = process.env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY;
 
 
-export async function fetchSymbolSuggestions(query: string, type: 'stock' | 'crypto'): Promise<any[]> {
+  /**
+   * Fetch stock symbol suggestions from Alpha Vantage API.
+   * @param query - The search query.
+   * @returns A promise that resolves to an array of stock symbol suggestions.
+   */
+  export async function fetchStockSymbolSuggestions(query: string): Promise<any[]> {
     const url = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${query}&apikey=${API_KEY}`;
-  
+
     try {
       const response = await axios.get(url);
       const results = response.data.bestMatches || [];
-      
-      // Filter results based on type
-      if (type === 'crypto') {
-        return results.filter((suggestion: any) => suggestion['1. symbol'].endsWith('USD'));
-      }
-      
-      return results; // Return all for stocks
+      return results.map((suggestion: any) => ({
+        symbol: suggestion['1. symbol'],
+        name: suggestion['2. name'],
+      }));
     } catch (error) {
-      console.error('Error fetching symbol suggestions:', error);
+      console.error('Error fetching stock symbol suggestions:', error);
       return [];
     }
   }
+  /**
+   * Fetch and filter cryptocurrency symbols.
+   * @param query - The search query.
+   * @returns A promise that resolves to an array of filtered cryptocurrency symbols.
+   */
+  export async function fetchCryptoSymbolSuggestions(query: string): Promise<string[]> {
+    try {
+      // Fetch the CSV data
+      const response = await fetch('https://www.alphavantage.co/digital_currency_list/');
+      const csvText = await response.text();
 
+      // Parse the CSV data
+      const lines = csvText.split('\n');
+      const symbols: string[] = lines.map((line) => line.split(',')[0].trim().toUpperCase());
+
+      // Filter suggestions based on the query
+      if (query.length < 1) {
+        return [];
+      }
+      return symbols.filter((symbol) => symbol.startsWith(query.toUpperCase()));
+    } catch (error) {
+      console.error('Error fetching crypto symbols:', error);
+      return [];
+    }
+  }
+  
   export async function fetchPrice(symbol: string, type: 'stock' | 'crypto'): Promise<number | null> {
     let url: string;
   

@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { fetchSymbolSuggestions } from '../services/financeApi';
-
 interface SymbolSearchProps {
   onSymbolSelect: (symbol: string) => void;
 }
-
 const StockSymbolSearch: React.FC<SymbolSearchProps> = ({ onSymbolSelect }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     if (query.length < 2) {
       setSuggestions([]);
       return;
     }
-
     const fetchSuggestions = async () => {
       setIsLoading(true);
       const results = await fetchSymbolSuggestions(query, 'stock');
@@ -23,11 +19,9 @@ const StockSymbolSearch: React.FC<SymbolSearchProps> = ({ onSymbolSelect }) => {
       setSuggestions(results);
       setIsLoading(false);
     };
-
     const debounceTimeout = setTimeout(fetchSuggestions, 300);
     return () => clearTimeout(debounceTimeout);
   }, [query]);
-
   return (
     <div>
       <input
@@ -52,5 +46,4 @@ const StockSymbolSearch: React.FC<SymbolSearchProps> = ({ onSymbolSelect }) => {
     </div>
   );
 };
-
 export default StockSymbolSearch;
