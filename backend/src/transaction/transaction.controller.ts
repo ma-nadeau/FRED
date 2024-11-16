@@ -5,10 +5,9 @@ import {
   Delete,
   UseGuards,
   HttpCode,
-  HttpStatus,
   Param,
-  HttpException,
   ParseIntPipe,
+  HttpStatus, Get,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
@@ -16,6 +15,7 @@ import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/
 import { FredUser } from '../session/auth.decorator';
 import { User } from '@prisma/client';
 import { SessionGuard } from '../session/session.guard';
+import {BankAccountResponseDto} from "@fred/transfer-objects/dtos/bank-account";
 
 @Controller('transactions')
 @UseGuards(SessionGuard)
@@ -27,26 +27,23 @@ export class TransactionController {
     @FredUser() user: User,
     @Body() createTransactionDto: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    try {
-      return await this.transactionService.createTransaction(
-        user.id,
-        createTransactionDto,
-      );
-    } catch (error) {
-      throw new HttpException(
-        { statusCode: HttpStatus.BAD_REQUEST, message: error.message },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    return this.transactionService.createTransaction(
+      user.id,
+      createTransactionDto,
+    );
   }
 
-  // Delete a specific bank account by its ID, only if it belongs to the authenticated user
-  @Delete('transactions/:transactionsId')
-  @HttpCode(HttpStatus.NO_CONTENT) // Return 204 No Content on successful deletion
+  @Get()
+  async getBankAccountsForUser(@FredUser() user: User): Promise<BankAccountResponseDto[]> {
+    return this.transactionService.getBankAccountsForUser(user.id);
+  }
+
+  @Delete(':transactionId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteTransaction(
-    @Param('transactionsId', ParseIntPipe) transactionsId: number,
-    @FredUser() user: User, // Get the currently authenticated user
+    @Param('transactionId', ParseIntPipe) transactionId: number,
+    @FredUser() user: User,
   ): Promise<void> {
-    await this.transactionService.deleteTransaction(transactionsId, user.id);
+    await this.transactionService.deleteTransaction(transactionId, user.id);
   }
 }

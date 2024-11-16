@@ -45,6 +45,9 @@ export default function Navigation() {
           <ListItemIcon><ShowChartIcon /></ListItemIcon>
           <ListItemText primary="Trading" />
         </ListItem>
+        <ListItem component={Link} href="/add_transaction">
+            <ListItemText primary="add transaction (temporary)" />
+        </ListItem>
       </List>
       <Box sx={{ flexGrow: 1 }} />
       <Divider />
