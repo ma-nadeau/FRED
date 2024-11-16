@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionController } from '../../src/transaction/transaction.controller';
 import { TransactionService } from '../../src/transaction/transaction.service';
-import { Transaction, User } from '@prisma/client'; // Assuming User type from Prisma
+import { User } from '@prisma/client'; // Assuming User type from Prisma
 import { SessionGuard } from '../../src/session/session.guard'; // Adjust the import path as needed
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
@@ -30,7 +30,9 @@ describe('TransactionController', () => {
       .compile();
 
     controller = module.get<TransactionController>(TransactionController);
-    service = module.get(TransactionService) as DeepMockProxy<TransactionService>;
+    service = module.get(
+      TransactionService,
+    ) as DeepMockProxy<TransactionService>;
   });
 
   it('should be defined', () => {
@@ -74,10 +76,16 @@ describe('TransactionController', () => {
 
       service.createTransaction.mockResolvedValue(mockResponse);
 
-      const result = await controller.createTransaction(user, createTransactionDto);
+      const result = await controller.createTransaction(
+        user,
+        createTransactionDto,
+      );
 
       expect(result).toEqual(mockResponse);
-      expect(service.createTransaction).toHaveBeenCalledWith(user.id, createTransactionDto);
+      expect(service.createTransaction).toHaveBeenCalledWith(
+        user.id,
+        createTransactionDto,
+      );
     });
   });
 
@@ -100,27 +108,44 @@ describe('TransactionController', () => {
       const result = await controller.deleteTransaction(transactionId, user);
 
       expect(result).toBeUndefined();
-      expect(service.deleteTransaction).toHaveBeenCalledWith(transactionId, user.id);
+      expect(service.deleteTransaction).toHaveBeenCalledWith(
+        transactionId,
+        user.id,
+      );
     });
 
     it('should throw NotFoundException when the transaction does not exist', async () => {
       const transactionId = 999;
 
-      service.deleteTransaction.mockRejectedValue(new NotFoundException('Transaction not found.'));
+      service.deleteTransaction.mockRejectedValue(
+        new NotFoundException('Transaction not found.'),
+      );
 
-      await expect(controller.deleteTransaction(transactionId, user)).rejects.toThrow(NotFoundException);
-      expect(service.deleteTransaction).toHaveBeenCalledWith(transactionId, user.id);
+      await expect(
+        controller.deleteTransaction(transactionId, user),
+      ).rejects.toThrow(NotFoundException);
+      expect(service.deleteTransaction).toHaveBeenCalledWith(
+        transactionId,
+        user.id,
+      );
     });
 
     it('should throw ForbiddenException when the user does not have permission to delete the transaction', async () => {
       const transactionId = 2;
 
       service.deleteTransaction.mockRejectedValue(
-        new ForbiddenException('You do not have permission to delete this transaction.'),
+        new ForbiddenException(
+          'You do not have permission to delete this transaction.',
+        ),
       );
 
-      await expect(controller.deleteTransaction(transactionId, user)).rejects.toThrow(ForbiddenException);
-      expect(service.deleteTransaction).toHaveBeenCalledWith(transactionId, user.id);
+      await expect(
+        controller.deleteTransaction(transactionId, user),
+      ).rejects.toThrow(ForbiddenException);
+      expect(service.deleteTransaction).toHaveBeenCalledWith(
+        transactionId,
+        user.id,
+      );
     });
   });
 });
