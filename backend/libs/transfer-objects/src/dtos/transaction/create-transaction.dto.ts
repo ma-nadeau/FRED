@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { TransactionType, Category } from '@prisma/client';
+import { TransactionType, TransactionCategory } from '@prisma/client';
 
 export class CreateTransactionDto {
   @IsNotEmpty()
@@ -18,8 +18,8 @@ export class CreateTransactionDto {
   type: TransactionType;
 
   @IsNotEmpty()
-  @IsEnum(Category)
-  category: Category;
+  @IsEnum(TransactionCategory)
+  category: TransactionCategory;
 
   @IsNotEmpty()
   transactionAt: Date;

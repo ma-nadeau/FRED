@@ -65,6 +65,7 @@ describe('BankAccountController', () => {
           transactionAt: '2024-10-15T00:00:00Z',
           type: 'WITHDRAWAL',
           description: 'groceries',
+          category: 'GROCERIES'
         },
         {
           id: 2,
@@ -73,6 +74,7 @@ describe('BankAccountController', () => {
           transactionAt: '2024-10-20T00:00:00Z',
           type: 'DEPOSIT',
           description: 'salary',
+          category: 'SALARY'
         },
       ],
     };

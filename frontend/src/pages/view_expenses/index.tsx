@@ -87,13 +87,6 @@ const ViewExpenses: React.FC = () => {
   const depositData = labels.map(label => groupedExpenses[label].deposit);
   const withdrawalData = labels.map(label => groupedExpenses[label].withdrawal);
 
-  console.log('Transactions:', transactions); // Log all transactions
-  console.log('Filtered Transactions:', filteredTransactions); // Log filtered transactions
-  console.log('Grouped Expenses:', groupedExpenses); // Log grouped expenses
-  console.log('Labels:', labels); // Log labels
-  console.log('Deposit Data:', depositData); // Log deposit data
-  console.log('Withdrawal Data:', withdrawalData); // Log withdrawal data
-
   return (
     <Box>
       <Select value={selectedAccountId} onChange={(e) => setSelectedAccountId(e.target.value as number | 'all')}>

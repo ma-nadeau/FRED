@@ -64,16 +64,6 @@ enum TradingAccountType {
   CRYPTO
 }
 
-enum Category {
-  GROCERIES
-  ENTERTAINMENT
-  TRANSPORTATION
-  UTILITIES
-  HEALTH
-  EDUCATION
-  OTHER
-}
-
 enum AccountType {
   CHECKING
   SAVINGS_TFSA

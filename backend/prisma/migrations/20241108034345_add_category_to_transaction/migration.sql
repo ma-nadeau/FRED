@@ -5,7 +5,7 @@
 
 */
 -- CreateEnum
-CREATE TYPE "Category" AS ENUM ('GROCERIES', 'ENTERTAINMENT', 'TRANSPORTATION', 'UTILITIES', 'HEALTH', 'EDUCATION', 'OTHER');
+CREATE TYPE "TransactionCategory" AS ENUM ('GROCERIES', 'CAR', 'RENT', 'TUITION', 'BILLS', 'HEALTH', 'MISCELLANEOUS', 'OUTINGS', 'SALARY');
 
 -- AlterTable
-ALTER TABLE "Transaction" ADD COLUMN     "category" "Category" NOT NULL;
+ALTER TABLE "Transaction" ADD COLUMN     "category" "TransactionCategory" NOT NULL;
