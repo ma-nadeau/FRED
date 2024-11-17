@@ -18,7 +18,7 @@ import http from '@fred/lib/http';
 
 // Define the TradingAccountType enum values
 const TradingAccountType = {
-  STOCKS: 'STOCKS',
+  STOCKS: 'STOCK',
   CRYPTO: 'CRYPTO',
 };
 
