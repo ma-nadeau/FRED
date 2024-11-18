@@ -2,7 +2,6 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
@@ -20,17 +19,15 @@ export class TransactionService {
     const { description, type, category, transactionAt, amount, accountId } =
       createTransactionDto;
 
-    // Verify account ownership via MainAccount
+    // Verify account ownership
     const account = await this.prisma.bankAccount.findUnique({
       where: { id: accountId },
       include: {
-        account: {
-          select: {
-            userId: true,
-          },
-        },
+        account: true, // Include all related MainAccount records
       },
     });
+
+
 
     // Check if any of the MainAccount entries belong to the user
     if (
@@ -40,22 +37,6 @@ export class TransactionService {
       throw new ForbiddenException(
         'You do not have access to this bank account.',
       );
-    }
-
-    // Check for duplicate transaction
-    const existingTransaction = await this.prisma.transaction.findFirst({
-      where: {
-        description,
-        type,
-        category,
-        transactionAt,
-        amount,
-        accountId,
-      },
-    });
-
-    if (existingTransaction) {
-      throw new BadRequestException('Transaction is already saved.');
     }
 
     // Create the transaction
@@ -118,6 +99,12 @@ export class TransactionService {
     }));
   }
 
+  /**
+   * Retrieves a specific transaction by its ID for a user.
+   * @param transactionId - The ID of the transaction.
+   * @param userId - The ID of the user.
+   * @returns The transaction as a response DTO.
+   */
   async getTransactionById(
     transactionId: number,
     userId: number,
@@ -132,7 +119,9 @@ export class TransactionService {
 
     const account = await this.prisma.bankAccount.findUnique({
       where: { id: transaction.accountId },
-      include: { account: { select: { userId: true } } },
+      include: {
+        account: true, // Include all related MainAccount records
+      },
     });
 
     if (
@@ -177,5 +166,9 @@ export class TransactionService {
         'You do not have access to this transaction.',
       );
     }
+
+    await this.prisma.transaction.delete({
+      where: { id: transactionId },
+    });
   }
 }
