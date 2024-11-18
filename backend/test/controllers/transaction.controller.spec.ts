@@ -5,7 +5,7 @@ import { Transaction, User } from '@prisma/client'; // Assuming User type from P
 import { SessionGuard } from '../../src/session/session.guard'; // Adjust the import path as needed
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { TransactionType, Category } from '@prisma/client';
+import { TransactionType, TransactionCategory } from '@prisma/client';
 import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
 import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/transaction-response.dto';
 
@@ -58,7 +58,7 @@ describe('TransactionController', () => {
         description: 'This is a test transaction',
         type: TransactionType.WITHDRAWAL,
         transactionAt: new Date(),
-        category: Category.GROCERIES,
+        category: TransactionCategory.GROCERIES,
         accountId: 1,
       };
 
@@ -66,7 +66,7 @@ describe('TransactionController', () => {
         id: 1,
         description: 'This is a test transaction',
         type: TransactionType.WITHDRAWAL,
-        category: Category.GROCERIES,
+        category: TransactionCategory.GROCERIES,
         transactionAt: new Date(),
         amount: 100,
         accountId: 1,
