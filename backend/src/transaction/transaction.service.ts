@@ -20,14 +20,19 @@ export class TransactionService {
     const { description, type, category, transactionAt, amount, accountId } =
       createTransactionDto;
 
-    // Verify account ownership
+    // Verify account ownership via MainAccount
     const account = await this.prisma.bankAccount.findUnique({
       where: { id: accountId },
       include: {
-        account: true,
+        account: {
+          select: {
+            userId: true,
+          },
+        },
       },
     });
 
+    // Check if any of the MainAccount entries belong to the user
     if (
       !account ||
       !account.account.some(
@@ -119,12 +124,20 @@ export class TransactionService {
     }));
   }
 
-  /**
-   * Retrieves a specific transaction by its ID for a user.
-   * @param transactionId - The ID of the transaction.
-   * @param userId - The ID of the user.
-   * @returns The transaction as a response DTO.
-   */
+  private mapToTransactionResponseDto(
+    transaction: any,
+  ): TransactionResponseDto {
+    return {
+      id: transaction.id,
+      description: transaction.description,
+      type: transaction.type,
+      category: transaction.category,
+      transactionAt: transaction.transactionAt,
+      amount: transaction.amount,
+      accountId: transaction.accountId,
+    };
+  }
+
   async getTransactionById(
     transactionId: number,
     userId: number,
@@ -139,9 +152,7 @@ export class TransactionService {
 
     const account = await this.prisma.bankAccount.findUnique({
       where: { id: transaction.accountId },
-      include: {
-        account: true, // Include all related MainAccount records
-      },
+      include: { account: { select: { userId: true } } },
     });
 
     if (
@@ -156,19 +167,11 @@ export class TransactionService {
     return this.mapToTransactionResponseDto(transaction);
   }
 
-  private mapToTransactionResponseDto(
-    transaction: any,
-  ): TransactionResponseDto {
-    return {
-      id: transaction.id,
-      description: transaction.description,
-      type: transaction.type,
-      category: transaction.category,
-      transactionAt: transaction.transactionAt,
-      amount: transaction.amount,
-      accountId: transaction.accountId,
-    };
-  }
+  /**
+   * Deletes a transaction by its ID for a user.
+   * @param transactionId - The ID of the transaction.
+   * @param userId - The ID of the user.
+   */
   async deleteTransaction(
     transactionId: number,
     userId: number,
