@@ -32,6 +32,6 @@ export class CreateTradingTransactionDto {
   quantity: number;
 
   @IsOptional()
-  @IsDate()
+  @IsString()
   transactionAt?: Date;
 }

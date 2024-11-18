@@ -19,7 +19,7 @@ export class TradeTransactionService {
       createTradeTransactionDto;
 
     // Verify account ownership
-    const account = await this.prisma.bankAccount.findUnique({
+    const account = await this.prisma.tradingAccount.findUnique({
       where: { id: tradingAccountId },
     });
 

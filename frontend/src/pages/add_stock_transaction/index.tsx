@@ -55,7 +55,8 @@ function AddTradeStockTransactionForm() {
       quantity: Number(quantity),
       purchasePrice: transactionType === 'ADD' ? Number(price) : null,
       sellPrice: transactionType === 'REMOVE' ? Number(price) : null,
-      transactionAt,
+      transactionAt: transactionAt instanceof Date ? transactionAt : new Date(transactionAt),
+      tradingAccountId: 1,
     };
 
     http('POST', '/trade-transactions', requestBody)
@@ -168,10 +169,10 @@ function AddTradeStockTransactionForm() {
             />
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
-                label="Transaction Date"
-                value={transactionAt}
-                onChange={(newValue) => setTransactionAt(newValue)}
-                renderInput={(params) => <TextField {...params} fullWidth required margin="normal" />}
+              label="Transaction Date"
+              value={transactionAt}
+              onChange={(newValue) => setTransactionAt(newValue ? new Date(newValue) : null)}
+              renderInput={(params) => <TextField {...params} fullWidth required margin="normal" />}
               />
             </LocalizationProvider>
             <Button

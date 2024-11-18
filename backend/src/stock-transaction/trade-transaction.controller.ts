@@ -15,7 +15,7 @@ import { SessionGuard } from '../session/session.guard';
 
 @Controller('trade-transactions')
 @UseGuards(SessionGuard)
-export class TransactionController {
+export class TradeTransactionController {
   constructor(
     private readonly tradetransactionService: TradeTransactionService,
   ) {}
