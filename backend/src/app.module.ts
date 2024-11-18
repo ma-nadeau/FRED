@@ -9,8 +9,8 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { BankAccountController } from './bank/bank-account.controller';
 import { BankAccountService } from './bank/bank-account.service';
-import {TransactionController} from "./transaction/transaction.controller";
-import {TransactionService} from "./transaction/transaction.service";
+import { TransactionController } from './transaction/transaction.controller';
+import { TransactionService } from './transaction/transaction.service';
 import { TradingAccountController } from './trading/trading-account.controller';
 import { TradingAccountService } from './trading/trading-account.service';
 
@@ -30,7 +30,13 @@ import { TradingAccountService } from './trading/trading-account.service';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController, BankAccountController, TransactionController, TradingAccountController],
+  controllers: [
+    AuthController,
+    BankAccountController,
+    TransactionController,
+    TradingAccountController,
+    TradingAccountController,
+  ],
   providers: [
     {
       provide: APP_INTERCEPTOR,
@@ -43,8 +49,8 @@ import { TradingAccountService } from './trading/trading-account.service';
     AuthService,
     BankAccountService,
     TransactionService,
-    TradingAccountService
-      
+    TradingAccountService,
+    TradingAccountService,
   ],
 })
 export class AppModule {}

@@ -15,6 +15,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Autocomplete } from '@mui/material';
 import http from '@fred/lib/http';
 import { fetchCryptoSymbolSuggestions } from '../../services/financeApi';
+import { tr } from 'date-fns/locale';
 
 interface SymbolOption {
   label: string;
@@ -45,15 +46,18 @@ function AddCryptoTradeTransactionForm() {
 
   const handleAddTransaction = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log('Add Trading Transaction form submitted');
     const requestBody = {
       symbol,
       quantity: Number(quantity),
       purchasePrice: transactionType === 'ADD' ? Number(price) : null,
       sellPrice: transactionType === 'REMOVE' ? Number(price) : null,
       transactionAt,
+      tradingAccountId: 1,
+
     };
 
-    http('POST', '/crypto-trade-transactions', requestBody)
+    http('POST', '/trade-transactions', requestBody)
       .then(() => {
         setMessage('Crypto trade transaction created successfully');
         setOpen(true);

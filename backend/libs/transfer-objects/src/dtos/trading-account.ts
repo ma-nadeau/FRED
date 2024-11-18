@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsString, IsEnum, IsNumber, IsOptional, Min, IsArray } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  Min,
+  IsArray,
+} from 'class-validator';
 import { TradingAccountType } from '@prisma/client'; // Adjust import as needed
 
 // DTO for creating a trading account
@@ -67,29 +75,29 @@ export class CreateTradeStockTransactionDto {
 
 // DTO for trade stock transaction in response
 export class TradeStockTransactionDto {
-    @IsNumber()
-    id: number;
-  
-    @IsNumber()
-    tradingAccountId: number;
-  
-    @IsString()
-    symbol: string;
-  
-    @IsOptional()
-    @IsNumber()
-    purchasePrice?: number | null; // Allow null as a possible value
-  
-    @IsOptional()
-    @IsNumber()
-    sellPrice?: number | null; // Allow null as a possible value
-  
-    @IsNumber()
-    quantity: number;
-  
-    @IsString()
-    transactionAt: string; // ISO date string
-  }
+  @IsNumber()
+  id: number;
+
+  @IsNumber()
+  tradingAccountId: number;
+
+  @IsString()
+  symbol: string;
+
+  @IsOptional()
+  @IsNumber()
+  purchasePrice?: number | null; // Allow null as a possible value
+
+  @IsOptional()
+  @IsNumber()
+  sellPrice?: number | null; // Allow null as a possible value
+
+  @IsNumber()
+  quantity: number;
+
+  @IsString()
+  transactionAt: string; // ISO date string
+}
 
 // DTO for trading account response
 export class TradingAccountResponseDto {

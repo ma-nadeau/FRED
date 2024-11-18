@@ -49,6 +49,7 @@ function AddTradeStockTransactionForm() {
 
   const handleAddTransaction = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log('Add Transaction form submitted');
     const requestBody = {
       symbol,
       quantity: Number(quantity),
@@ -57,7 +58,7 @@ function AddTradeStockTransactionForm() {
       transactionAt,
     };
 
-    http('POST', '/trade-stock-transactions', requestBody)
+    http('POST', '/trade-transactions', requestBody)
       .then(() => {
         setMessage('Trade stock transaction created successfully');
         setOpen(true);
@@ -69,7 +70,7 @@ function AddTradeStockTransactionForm() {
         if (Array.isArray(error.response?.data?.message)) {
           const validationErrors = error.response.data.message;
           errorMessage = validationErrors
-            .map((err: any) => Object.values(err.constraints).join(', '))
+            .map((err: { constraints: { [key: string]: string } }) => Object.values(err.constraints).join(', '))
             .join(' ');
         } else {
           errorMessage = error.response?.data?.message || errorMessage;
