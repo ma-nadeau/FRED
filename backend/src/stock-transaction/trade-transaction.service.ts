@@ -92,4 +92,36 @@ export class TradeTransactionService {
 
     return this.mapToTradeTransactionResponseDto(tradeTransaction);
   }
+
+  /**
+   * Deletes a trade transaction by its ID for a user.
+   * @param tradeTransactionId - The ID of the trade transaction.
+   * @param userId - The ID of the user.
+   */
+  async deleteTradeTransaction(
+    tradeTransactionId: number,
+    userId: number,
+  ): Promise<void> {
+    const tradeTransaction = await this.prisma.tradeStockTransaction.findUnique({
+      where: { id: tradeTransactionId },
+    });
+
+    if (!tradeTransaction) {
+      throw new NotFoundException('Trade transaction not found.');
+    }
+
+    const account = await this.prisma.tradingAccount.findUnique({
+      where: { id: tradeTransaction.tradingAccountId },
+    });
+
+    if (!account || account.id !== userId) {
+      throw new ForbiddenException(
+        'You do not have access to this trade transaction.',
+      );
+    }
+
+    await this.prisma.tradeStockTransaction.delete({
+      where: { id: tradeTransactionId },
+    });
+  }
 }

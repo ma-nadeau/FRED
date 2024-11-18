@@ -5,6 +5,8 @@ import {
   UseGuards,
   HttpStatus,
   HttpException,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import { TradeTransactionService } from './trade-transaction.service';
 import { CreateTradingTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-trading-transaction.dto';
@@ -36,5 +38,13 @@ export class TradeTransactionController {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  @Delete(':id')
+  async deleteTransaction(
+    @FredUser() user: User,
+    @Param('id') id: number,
+  ): Promise<void> {
+    await this.tradetransactionService.deleteTradeTransaction(id, user.id);
   }
 }
