@@ -53,11 +53,9 @@ export class BankAccountService {
     const accounts = await this.bankAccountRepository.getBankAccountsForUser(
       userId,
     );
-
     if (!accounts.length) {
       throw new NotFoundException('No bank accounts found for this user.');
     }
-
     return accounts.map((account) => this.mapToBankAccountResponseDto(account));
   }
 
@@ -146,13 +144,16 @@ export class BankAccountService {
       balance: account.balance ?? 0,
       interestRate: account.interestRate ?? 0,
       transactions:
-        account.transactions?.map((transaction: { id: any; accountId: any; type: any; amount: any; transactionAt: { toISOString: () => any; }; description: any; }) => ({
+        account.transactions?.map((transaction: { id: any; accountId: any; type: any; amount: any; transactionAt: { toISOString: () => any; }; description: any; category:any; recurringCashFlow?:any;}) => ({
           id: transaction.id,
           accountId: transaction.accountId,
           type: transaction.type,
           amount: transaction.amount,
           transactionAt: transaction.transactionAt.toISOString(),
           description: transaction.description,
+          category: transaction.category,
+          recurringCashFlowName: transaction.recurringCashFlow?.name ?? null,
+          recurringCashFlowID: transaction.recurringCashFlow?.id ?? null
         })) ?? [],
     };
   }

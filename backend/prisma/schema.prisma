@@ -64,16 +64,6 @@ enum TradingAccountType {
   CRYPTO
 }
 
-enum Category {
-  GROCERIES
-  ENTERTAINMENT
-  TRANSPORTATION
-  UTILITIES
-  HEALTH
-  EDUCATION
-  OTHER
-}
-
 enum AccountType {
   CHECKING
   SAVINGS_TFSA
@@ -82,13 +72,25 @@ enum AccountType {
   CREDIT
 }
 
+enum TransactionCategory {
+  GROCERIES
+  CAR
+  RENT
+  TUITION 
+  BILLS
+  HEALTH
+  MISCELLANEOUS
+  SALARY
+  OUTINGS
+}
+
 model Transaction {
-  id                  Int                @id @default(autoincrement())
-  accountId           Int
-  amount              Float
-  transactionAt       DateTime           @default(now())
-  type                TransactionType
-  category            Category
+  id             Int        @id @default(autoincrement())
+  accountId      Int
+  amount         Float
+  transactionAt  DateTime   @default(now())
+  type           TransactionType
+  category       TransactionCategory
   recurringCashFlowId Int?
   description         String?
   account             BankAccount?       @relation(fields: [accountId], references: [id], onDelete: Cascade)

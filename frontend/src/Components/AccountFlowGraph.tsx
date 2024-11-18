@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BarChart } from "@mui/x-charts";
 import { LineChart } from "@mui/x-charts";
 import {
@@ -28,7 +28,11 @@ const AccountFlowGraph: React.FC = () => {
     "all"
   );
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+  useEffect(() => {
+    setIsLoggedIn(window.localStorage.getItem('token')!==null);
+  }, []);
 
   // Get all transactions from the exampleAccountFlowData
   const transactions = exampleAccountFlowData.bankAccounts.flatMap(
@@ -196,6 +200,35 @@ const AccountFlowGraph: React.FC = () => {
     setConfirmDelete(false); 
   };
 
+  const getExpenses = () => {
+    const expenses = new Array();
+    //const [data, setData] = useState<any[]>([]);
+    if(isLoggedIn){
+      http('GET', '/bank-accounts')
+        .then(async (response) => {
+            if(response.data){
+              response.data.forEach( (bankAccount:any) => {
+                if(bankAccount.transactions.length>0){
+                  bankAccount.transactions.forEach( (transaction:any) => {
+                    if(transaction.type === "WITHDRAWAL"){
+                      expenses.push(transaction);
+                    }
+                  })
+                }
+              });
+            }
+            else{
+              console.error('No bank accounts exist')
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    console.log(expenses);
+    return expenses;
+  }
+
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>
@@ -321,7 +354,24 @@ const AccountFlowGraph: React.FC = () => {
           </Box>
         )}
       </Box>
+      
+      {/* Manage expenses button */}
+      {isLoggedIn && 
+        <Box sx={{ mt: 2 }}>
+          <Link href="/expenses_collection" passHref>
+            <Button
+              variant="contained"
+              color="primary"
+            >
+              Manage Expenses
+            </Button>
+          </Link>
+          
+          <h1>{getExpenses()}</h1>
+        </Box>
+      }
     </Box>
+
   );
 };
 
