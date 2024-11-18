@@ -38,22 +38,21 @@ export class BankAccountController {
     );
   }
 
-  // Get a specific bank account by its ID, only if it belongs to the authenticated user
+  // Get all bank accounts for the currently authenticated user
   @Get()
   async getBankAccountsForUser(
-    @FredUser() user: User,
+    @FredUser() user: User, // Get the currently authenticated user
   ): Promise<BankAccountResponseDto[]> {
     return this.bankAccountService.getBankAccountsForUser(user.id);
   }
 
   @Get(':accountId')
   async getBankAccountById(
-      @Param('accountId', ParseIntPipe) accountId: number,
-      @FredUser() user: User,
+    @Param('accountId', ParseIntPipe) accountId: number,
+    @FredUser() user: User,
   ): Promise<BankAccountResponseDto> {
     return this.bankAccountService.getBankAccountById(accountId, user.id);
   }
-
 
   // Update an existing bank account for the currently authenticated user
   @Put(':id')
