@@ -1,8 +1,13 @@
 // src/transaction/transaction.service.ts
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
 import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/transaction-response.dto';
+import { BankAccountResponseDto } from '@fred/transfer-objects/dtos/bank-account';
 
 @Injectable()
 export class TransactionService {
@@ -15,15 +20,43 @@ export class TransactionService {
     const { description, type, category, transactionAt, amount, accountId } =
       createTransactionDto;
 
-    // Verify account ownership
+    // Verify account ownership via MainAccount
     const account = await this.prisma.bankAccount.findUnique({
       where: { id: accountId },
+      include: {
+        account: {
+          // Include MainAccount records associated with the BankAccount
+          select: {
+            userId: true,
+          },
+        },
+      },
     });
 
-    if (!account || account.id !== userId) {
-      throw new NotFoundException(
-        'Bank account not found or does not belong to the user.',
+    // Check if any of the MainAccount entries belong to the user
+    if (
+      !account ||
+      !account.account.some((mainAccount) => mainAccount.userId === userId)
+    ) {
+      throw new ForbiddenException(
+        'You do not have access to this bank account.',
       );
+    }
+
+    // Check for duplicate transaction
+    const existingTransaction = await this.prisma.transaction.findFirst({
+      where: {
+        description,
+        type,
+        category,
+        transactionAt,
+        amount,
+        accountId,
+      },
+    });
+
+    if (existingTransaction) {
+      throw new ForbiddenException('Transaction is already saved.');
     }
 
     // Create the transaction
@@ -40,6 +73,54 @@ export class TransactionService {
 
     return this.mapToTransactionResponseDto(transaction);
   }
+
+  /**
+   * Fetch all bank accounts associated with the authenticated user.
+   * @param userId - The ID of the user.
+   * @returns A list of bank accounts owned by the user.
+   */
+  async getBankAccountsForUser(
+    userId: number,
+  ): Promise<BankAccountResponseDto[]> {
+    const bankAccounts = await this.prisma.bankAccount.findMany({
+      where: {
+        account: {
+          some: { userId }, // Ensure the user owns the MainAccount associated with the BankAccount
+        },
+      },
+      include: {
+        transactions: {
+          select: {
+            id: true,
+            accountId: true,
+            amount: true,
+            type: true,
+            transactionAt: true,
+            description: true,
+          },
+        },
+      },
+    });
+
+    return bankAccounts.map((bankAccount) => ({
+      id: bankAccount.id,
+      name: bankAccount.name,
+      type: bankAccount.type,
+      balance: bankAccount.balance,
+      interestRate: bankAccount.interestRate,
+      transactions: bankAccount.transactions.map((transaction) => ({
+        id: transaction.id,
+        accountId: transaction.accountId,
+        amount: transaction.amount,
+        type: transaction.type,
+        transactionAt: transaction.transactionAt.toISOString(), // Convert Date to string
+        description: transaction.description,
+      })),
+    }));
+  }
+
+
+
 
   private mapToTransactionResponseDto(
     transaction: any,
@@ -91,13 +172,20 @@ export class TransactionService {
    * @param transactionId - The ID of the transaction.
    * @param userId - The ID of the user.
    */
-  async deleteTransaction(transactionId: number, userId: number): Promise<void> {
+  async deleteTransaction(
+    transactionId: number,
+    userId: number,
+  ): Promise<void> {
     const transaction = await this.prisma.transaction.findUnique({
       where: { id: transactionId },
       include: { account: true },
     });
 
-    if (!transaction || !transaction.account || transaction.account.id !== userId) {
+    if (
+      !transaction ||
+      !transaction.account ||
+      transaction.account.id !== userId
+    ) {
       throw new ForbiddenException(
         'You do not have access to this transaction.',
       );
