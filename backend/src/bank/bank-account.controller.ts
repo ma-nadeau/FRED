@@ -19,7 +19,7 @@ import {
 } from '@fred/transfer-objects/dtos/bank-account';
 import { FredUser } from '../session/auth.decorator'; // Custom decorator to get the logged-in user from the session
 import { User } from '@prisma/client'; // Assuming User type from Prisma
-import { SessionGuard } from '../session/session.guard'; // Assuming this is the guard we are using
+import { SessionGuard } from '../session/session.guard';
 
 @Controller('bank-accounts')
 @UseGuards(SessionGuard) // Protect all routes with SessionGuard
@@ -32,7 +32,10 @@ export class BankAccountController {
     @FredUser() user: User, // Get the currently authenticated user from the request
     @Body() createBankAccountDto: CreateBankAccountDto,
   ): Promise<BankAccountResponseDto> {
-    return this.bankAccountService.createBankAccount(user.id, createBankAccountDto);
+    return this.bankAccountService.createBankAccount(
+      user.id,
+      createBankAccountDto,
+    );
   }
 
   // Get all bank accounts for the currently authenticated user
@@ -43,11 +46,10 @@ export class BankAccountController {
     return this.bankAccountService.getBankAccountsForUser(user.id);
   }
 
-  // Get a specific bank account by its ID, only if it belongs to the authenticated user
-  @Get('account/:accountId')
+  @Get(':accountId')
   async getBankAccountById(
     @Param('accountId', ParseIntPipe) accountId: number,
-    @FredUser() user: User, // Get the currently authenticated user
+    @FredUser() user: User,
   ): Promise<BankAccountResponseDto> {
     return this.bankAccountService.getBankAccountById(accountId, user.id);
   }
@@ -59,7 +61,11 @@ export class BankAccountController {
     @Body() updateBankAccountDto: UpdateBankAccountDto,
     @FredUser() user: User, // Get the currently authenticated user
   ): Promise<BankAccountResponseDto> {
-    const updatedAccount = await this.bankAccountService.updateBankAccount(user.id, id, updateBankAccountDto);
+    const updatedAccount = await this.bankAccountService.updateBankAccount(
+      user.id,
+      id,
+      updateBankAccountDto,
+    );
     return updatedAccount;
   }
 
