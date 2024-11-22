@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Select, MenuItem, SelectChangeEvent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { useRouter } from 'next/router';
 import http from '../../lib/http';
 
 interface Transaction {
@@ -21,6 +22,7 @@ interface BankAccount {
 }
 
 const ExpensesCollection: React.FC = () => {
+  const router = useRouter();
   const [filterType, setFilterType] = useState<string>('none');
   const [selectedFilter, setSelectedFilter] = useState<string | number>('all');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -73,6 +75,10 @@ const ExpensesCollection: React.FC = () => {
     }
     return true;
   });
+
+  const handleModifyTransaction = (transactionId: number) => {
+    router.push(`/update_transaction?id=${transactionId}`);
+  };
 
   return (
     <Box sx={{ p: 2 }}>
@@ -150,7 +156,12 @@ const ExpensesCollection: React.FC = () => {
                 <TableCell>{transaction.type}</TableCell>
                 <TableCell>{transaction.description || 'N/A'}</TableCell>
                 <TableCell>
-                  <Button variant="contained" color="primary" style={{ marginRight: '8px' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    style={{ marginRight: '8px' }}
+                    onClick={() => handleModifyTransaction(transaction.id)}
+                  >
                     Modify
                   </Button>
                   <Button variant="contained" color="secondary">

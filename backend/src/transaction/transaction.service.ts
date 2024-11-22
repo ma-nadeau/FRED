@@ -5,9 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
-import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/transaction-response.dto';
+// import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
+// import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/transaction-response.dto';
 import { BankAccountResponseDto } from '@fred/transfer-objects/dtos/bank-account';
+import { CreateTransactionDto, TransactionResponseDto, UpdateTransactionDto } from '@fred/transfer-objects/dtos/transaction.dto';
+
+
+
 
 @Injectable()
 export class TransactionService {
@@ -84,45 +88,45 @@ export class TransactionService {
    * @param userId - The ID of the user.
    * @returns A list of bank accounts owned by the user.
    */
-  async getBankAccountsForUser(
-    userId: number,
-  ): Promise<BankAccountResponseDto[]> {
-    const bankAccounts = await this.prisma.bankAccount.findMany({
-      where: {
-        account: {
-          some: { userId }, // Ensure the user owns the MainAccount associated with the BankAccount
-        },
-      },
-      include: {
-        transactions: {
-          select: {
-            id: true,
-            accountId: true,
-            amount: true,
-            type: true,
-            transactionAt: true,
-            description: true,
-          },
-        },
-      },
-    });
+  // async getBankAccountsForUser(
+  //   userId: number,
+  // ): Promise<BankAccountResponseDto[]> {
+  //   const bankAccounts = await this.prisma.bankAccount.findMany({
+  //     where: {
+  //       account: {
+  //         some: { userId }, // Ensure the user owns the MainAccount associated with the BankAccount
+  //       },
+  //     },
+  //     include: {
+  //       transactions: {
+  //         select: {
+  //           id: true,
+  //           accountId: true,
+  //           amount: true,
+  //           type: true,
+  //           transactionAt: true,
+  //           description: true,
+  //         },
+  //       },
+  //     },
+  //   });
 
-    return bankAccounts.map((bankAccount) => ({
-      id: bankAccount.id,
-      name: bankAccount.name,
-      type: bankAccount.type,
-      balance: bankAccount.balance,
-      interestRate: bankAccount.interestRate,
-      transactions: bankAccount.transactions.map((transaction) => ({
-        id: transaction.id,
-        accountId: transaction.accountId,
-        amount: transaction.amount,
-        type: transaction.type,
-        transactionAt: transaction.transactionAt.toISOString(), // Convert Date to string
-        description: transaction.description,
-      })),
-    }));
-  }
+  //   return bankAccounts.map((bankAccount) => ({
+  //     id: bankAccount.id,
+  //     name: bankAccount.name,
+  //     type: bankAccount.type,
+  //     balance: bankAccount.balance,
+  //     interestRate: bankAccount.interestRate,
+  //     transactions: bankAccount.transactions.map((transaction) => ({
+  //       id: transaction.id,
+  //       accountId: transaction.accountId,
+  //       amount: transaction.amount,
+  //       type: transaction.type,
+  //       transactionAt: transaction.transactionAt.toISOString(), // Convert Date to string
+  //       description: transaction.description,
+  //     })),
+  //   }));
+  // }
 
   private mapToTransactionResponseDto(
     transaction: any,
@@ -165,6 +169,69 @@ export class TransactionService {
     }
 
     return this.mapToTransactionResponseDto(transaction);
+  }
+
+  /**
+   * Retrieves a specific transaction by its ID for a user.
+   * @param transactionId - The ID of the transaction.
+   * @param userId - The ID of the user.
+   * @returns The transaction as a response DTO.
+   */
+  // async getTransactionById(
+  //   transactionId: number,
+  //   userId: number,
+  // ): Promise<TransactionResponseDto> {
+  //   const transaction = await this.prisma.transaction.findUnique({
+  //     where: { id: transactionId },
+  //   });
+
+  //   if (!transaction) {
+  //     throw new NotFoundException('Transaction not found.');
+  //   }
+
+  //   const account = await this.prisma.bankAccount.findUnique({
+  //     where: { id: transaction.accountId },
+  //   });
+
+  //   if (!account || account.id !== userId) {
+  //     throw new ForbiddenException(
+  //       'You do not have access to this transaction.',
+  //     );
+  //   }
+
+  //   return this.mapToTransactionResponseDto(transaction);
+  // }
+
+
+  /**
+   * Updates a transaction by its ID for a user.
+   * @param transactionId - The ID of the transaction.
+   * @param userId - The ID of the user.
+   * @param updateTransactionDto - The updated transaction details.
+   * @returns The updated transaction as a response DTO.
+   */
+  async updateTransaction(
+    transactionId: number,
+    userId: number,
+    updateTransactionDto: UpdateTransactionDto,
+  ): Promise<TransactionResponseDto> {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: transactionId },
+      include: { account: true },
+    });
+
+    if (!transaction || !transaction.account || transaction.account.id !== userId) {
+      throw new ForbiddenException(
+        'You do not have access to this transaction.',
+      );
+    }
+
+    const updatedTransaction = await this.prisma.transaction.update({
+      where: { id: transactionId },
+      data: updateTransactionDto,
+    });
+
+    return this.mapToTransactionResponseDto(updatedTransaction);
   }
 
   /**
