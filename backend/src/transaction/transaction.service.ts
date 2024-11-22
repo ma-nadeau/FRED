@@ -217,12 +217,41 @@ export class TransactionService {
     userId: number,
     updateTransactionDto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
+    // First, verify the transaction exists
     const transaction = await this.prisma.transaction.findUnique({
       where: { id: transactionId },
-      include: { account: true },
+      include: {
+        account: {
+          include: {
+            account: true
+          }
+        }
+      },
     });
 
-    if (!transaction || !transaction.account || transaction.account.id !== userId) {
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found.');
+    }
+
+    // Verify account ownership via MainAccount
+    const account = await this.prisma.bankAccount.findUnique({
+      where: { id: transaction.accountId },
+      include: {
+        account: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+
+    // Check if any of the MainAccount entries belong to the user
+    if (
+      !account ||
+      !account.account.some(
+        (mainAccount: { userId: number }) => mainAccount.userId === userId,
+      )
+    ) {
       throw new ForbiddenException(
         'You do not have access to this transaction.',
       );
