@@ -38,7 +38,7 @@ function UpdateTransactionForm() {
                     const transaction = response.data;
                     setDescription(transaction.description);
                     setTransactionType(transaction.type);
-                    // setCategory(transaction.category);
+                    setCategory(transaction.category);
                     setDate(new Date(transaction.transactionAt));
                     setAmount(transaction.amount.toString());
                     console.log('Response:', response);
@@ -148,12 +148,14 @@ function UpdateTransactionForm() {
                             onChange={(e) => setCategory(e.target.value)}
                         >
                             <MenuItem value="GROCERIES">Groceries</MenuItem>
-                            <MenuItem value="ENTERTAINMENT">Entertainment</MenuItem>
-                            <MenuItem value="TRANSPORTATION">Transportation</MenuItem>
-                            <MenuItem value="UTILITIES">Utilities</MenuItem>
+                            <MenuItem value="CAR">Car</MenuItem>
+                            <MenuItem value="RENT">Rent</MenuItem>
+                            <MenuItem value="TUITION">Tuition</MenuItem>
+                            <MenuItem value="BILLS">Bills</MenuItem>
                             <MenuItem value="HEALTH">Health</MenuItem>
-                            <MenuItem value="EDUCATION">Education</MenuItem>
-                            <MenuItem value="OTHER">Other</MenuItem>
+                            <MenuItem value="MISCELLANEOUS">Other</MenuItem>
+                            <MenuItem value="SALARY">Salary</MenuItem>
+                            <MenuItem value="OUTINGS">Outings</MenuItem>
                         </TextField>}
                         <DatePicker
                             label="Date"

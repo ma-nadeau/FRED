@@ -128,12 +128,14 @@ function AddTransactionForm() {
                             onChange={(e) => setCategory(e.target.value)}
                         >
                             <MenuItem value="GROCERIES">Groceries</MenuItem>
-                            <MenuItem value="ENTERTAINMENT">Entertainment</MenuItem>
-                            <MenuItem value="TRANSPORTATION">Transportation</MenuItem>
-                            <MenuItem value="UTILITIES">Utilities</MenuItem>
+                            <MenuItem value="CAR">Car</MenuItem>
+                            <MenuItem value="RENT">Rent</MenuItem>
+                            <MenuItem value="TUITION">Tuition</MenuItem>
+                            <MenuItem value="BILLS">Bills</MenuItem>
                             <MenuItem value="HEALTH">Health</MenuItem>
-                            <MenuItem value="EDUCATION">Education</MenuItem>
-                            <MenuItem value="OTHER">Other</MenuItem>
+                            <MenuItem value="MISCELLANEOUS">Other</MenuItem>
+                            <MenuItem value="SALARY">Salary</MenuItem>
+                            <MenuItem value="OUTINGS">Outings</MenuItem>
                         </TextField>
                         {/* <TextField 
                             margin="normal"
