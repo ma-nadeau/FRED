@@ -78,19 +78,19 @@ export class TransactionController {
       );
     }
   }
-  // @Get()
-  // async getBankAccountsForUser(
-  //   @FredUser() user: User,
-  // ): Promise<BankAccountResponseDto[]> {
-  //   return this.transactionService.getBankAccountsForUser(user.id);
-  // }
+  @Get()
+  async getBankAccountsForUser(
+    @FredUser() user: User,
+  ): Promise<BankAccountResponseDto[]> {
+    return this.transactionService.getBankAccountsForUser(user.id);
+  }
 
-  // @Delete(':transactionId')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async deleteTransaction(
-  //   @Param('transactionId', ParseIntPipe) transactionId: number,
-  //   @FredUser() user: User,
-  // ): Promise<void> {
-  //   await this.transactionService.deleteTransaction(transactionId, user.id);
-  // }
+  @Delete(':transactionId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteTransaction(
+    @Param('transactionId', ParseIntPipe) transactionId: number,
+    @FredUser() user: User,
+  ): Promise<void> {
+    await this.transactionService.deleteTransaction(transactionId, user.id);
+  }
 }

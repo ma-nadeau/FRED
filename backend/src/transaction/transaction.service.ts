@@ -88,45 +88,47 @@ export class TransactionService {
    * @param userId - The ID of the user.
    * @returns A list of bank accounts owned by the user.
    */
-  // async getBankAccountsForUser(
-  //   userId: number,
-  // ): Promise<BankAccountResponseDto[]> {
-  //   const bankAccounts = await this.prisma.bankAccount.findMany({
-  //     where: {
-  //       account: {
-  //         some: { userId }, // Ensure the user owns the MainAccount associated with the BankAccount
-  //       },
-  //     },
-  //     include: {
-  //       transactions: {
-  //         select: {
-  //           id: true,
-  //           accountId: true,
-  //           amount: true,
-  //           type: true,
-  //           transactionAt: true,
-  //           description: true,
-  //         },
-  //       },
-  //     },
-  //   });
+  async getBankAccountsForUser(
+    userId: number,
+  ): Promise<BankAccountResponseDto[]> {
+    const bankAccounts = await this.prisma.bankAccount.findMany({
+      where: {
+        account: {
+          some: { userId },
+        },
+      },
+      include: {
+        transactions: {
+          select: {
+            id: true,
+            accountId: true,
+            amount: true,
+            type: true,
+            category: true,
+            transactionAt: true,
+            description: true,
+          },
+        },
+      },
+    });
 
-  //   return bankAccounts.map((bankAccount) => ({
-  //     id: bankAccount.id,
-  //     name: bankAccount.name,
-  //     type: bankAccount.type,
-  //     balance: bankAccount.balance,
-  //     interestRate: bankAccount.interestRate,
-  //     transactions: bankAccount.transactions.map((transaction) => ({
-  //       id: transaction.id,
-  //       accountId: transaction.accountId,
-  //       amount: transaction.amount,
-  //       type: transaction.type,
-  //       transactionAt: transaction.transactionAt.toISOString(), // Convert Date to string
-  //       description: transaction.description,
-  //     })),
-  //   }));
-  // }
+    return bankAccounts.map((bankAccount) => ({
+      id: bankAccount.id,
+      name: bankAccount.name,
+      type: bankAccount.type,
+      balance: bankAccount.balance,
+      interestRate: bankAccount.interestRate,
+      transactions: bankAccount.transactions.map((transaction) => ({
+        id: transaction.id,
+        accountId: transaction.accountId,
+        amount: transaction.amount,
+        type: transaction.type,
+        category: transaction.category,
+        transactionAt: transaction.transactionAt.toISOString(),
+        description: transaction.description,
+      })),
+    }));
+  }
 
   private mapToTransactionResponseDto(
     transaction: any,

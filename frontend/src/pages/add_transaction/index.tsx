@@ -4,6 +4,12 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import http from '@fred/lib/http';
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
+interface BankAccount {
+    id: number;
+    name: string;
+    balance: number;
+}
+
 function AddTransactionForm() {
     const [description, setDescription] = useState('');
     const [transactionType, setTransactionType] = useState('');
@@ -11,7 +17,7 @@ function AddTransactionForm() {
     const [date, setDate] = useState<Date | null>(null);
     const [amount, setAmount] = useState('');
     const [accountId, setAccountId] = useState('');
-    const [bankAccounts, setBankAccounts] = useState([]);
+    const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -137,7 +143,7 @@ function AddTransactionForm() {
                             <MenuItem value="SALARY">Salary</MenuItem>
                             <MenuItem value="OUTINGS">Outings</MenuItem>
                         </TextField>
-                        {/* <TextField 
+                        {<TextField
                             margin="normal"
                             required
                             select
@@ -148,12 +154,12 @@ function AddTransactionForm() {
                             value={accountId}
                             onChange={(e) => setAccountId(e.target.value)}
                         >
-                            {bankAccounts.map((account) => (
+                            {bankAccounts.map((account: BankAccount) => (
                                 <MenuItem key={account.id} value={account.id}>
-                                    {account.name} (Balance: {account.balance})
+                                    {account.name} (Balance: ${account.balance.toFixed(2)})
                                 </MenuItem>
                             ))}
-                        </TextField> */}
+                        </TextField>}
                         <DatePicker
                             label="Date"
                             value={date}
