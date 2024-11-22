@@ -46,6 +46,14 @@ export class BankAccountController {
     return this.bankAccountService.getBankAccountsForUser(user.id);
   }
 
+  @Get(':accountId')
+  async getBankAccountById(
+    @Param('accountId', ParseIntPipe) accountId: number,
+    @FredUser() user: User,
+  ): Promise<BankAccountResponseDto> {
+    return this.bankAccountService.getBankAccountById(accountId, user.id);
+  }
+
   // Update an existing bank account for the currently authenticated user
   @Put(':id')
   async updateBankAccount(

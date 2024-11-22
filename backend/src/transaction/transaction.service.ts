@@ -1,5 +1,5 @@
-// src/transaction/transaction.service.ts
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -36,7 +36,9 @@ export class TransactionService {
     // Check if any of the MainAccount entries belong to the user
     if (
       !account ||
-      !account.account.some((mainAccount) => mainAccount.userId === userId)
+      !account.account.some(
+        (mainAccount: { userId: number }) => mainAccount.userId === userId,
+      )
     ) {
       throw new ForbiddenException(
         'You do not have access to this bank account.',
@@ -49,14 +51,18 @@ export class TransactionService {
         description,
         type,
         category,
-        transactionAt,
         amount,
         accountId,
+        transactionAt: {
+          equals: new Date(transactionAt).toISOString(), // Normalize date
+        },
       },
     });
 
+    console.log('Existing Transaction:', existingTransaction);
+
     if (existingTransaction) {
-      throw new ForbiddenException('Transaction is already saved.');
+      throw new BadRequestException('Transaction is already saved.');
     }
 
     // Create the transaction
@@ -119,9 +125,6 @@ export class TransactionService {
     }));
   }
 
-
-
-
   private mapToTransactionResponseDto(
     transaction: any,
   ): TransactionResponseDto {
@@ -136,12 +139,6 @@ export class TransactionService {
     };
   }
 
-  /**
-   * Retrieves a specific transaction by its ID for a user.
-   * @param transactionId - The ID of the transaction.
-   * @param userId - The ID of the user.
-   * @returns The transaction as a response DTO.
-   */
   async getTransactionById(
     transactionId: number,
     userId: number,
@@ -156,9 +153,13 @@ export class TransactionService {
 
     const account = await this.prisma.bankAccount.findUnique({
       where: { id: transaction.accountId },
+      include: { account: { select: { userId: true } } },
     });
 
-    if (!account || account.id !== userId) {
+    if (
+      !account ||
+      !account.account.some((mainAccount) => mainAccount.userId === userId)
+    ) {
       throw new ForbiddenException(
         'You do not have access to this transaction.',
       );

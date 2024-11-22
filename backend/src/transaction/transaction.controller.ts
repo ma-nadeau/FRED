@@ -7,7 +7,8 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
-  HttpStatus, Get,
+  HttpStatus, 
+  Get,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
@@ -15,7 +16,7 @@ import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/
 import { FredUser } from '../session/auth.decorator';
 import { User } from '@prisma/client';
 import { SessionGuard } from '../session/session.guard';
-import {BankAccountResponseDto} from "@fred/transfer-objects/dtos/bank-account";
+import { BankAccountResponseDto } from '@fred/transfer-objects/dtos/bank-account';
 
 @Controller('transactions')
 @UseGuards(SessionGuard)
@@ -34,7 +35,9 @@ export class TransactionController {
   }
 
   @Get()
-  async getBankAccountsForUser(@FredUser() user: User): Promise<BankAccountResponseDto[]> {
+  async getBankAccountsForUser(
+    @FredUser() user: User,
+  ): Promise<BankAccountResponseDto[]> {
     return this.transactionService.getBankAccountsForUser(user.id);
   }
 
