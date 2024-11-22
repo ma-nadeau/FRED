@@ -3,25 +3,25 @@ import { AccountType, TransactionType, TransactionCategory } from '@prisma/clien
 
 // DTO for creating a bank account
 export class CreateBankAccountDto {
-  @IsNotEmpty({message: 'Account Name is required'})
-  @IsString({message: 'Account Name should be a string'})
+  @IsNotEmpty({ message: 'Account Name is required' })
+  @IsString({ message: 'Account Name should be a string' })
   name: string;
 
-  @IsNotEmpty({message: 'Account Type is required'})
+  @IsNotEmpty({ message: 'Account Type is required' })
   @IsEnum(AccountType)
   type: AccountType;
 
-  @IsNotEmpty({message: 'Institution is required'}) // Ensure institution is included in the DTO
-  @IsString({message: 'Institution should be a string'})
+  @IsNotEmpty({ message: 'Institution is required' }) // Ensure institution is included in the DTO
+  @IsString({ message: 'Institution should be a string' })
   institution: string;
 
   @IsOptional() //optional initial balance
-  @IsNumber({},{message: 'Initial Balance should be a number'})
+  @IsNumber({}, { message: 'Initial Balance should be a number' })
   balance?: number;
 
   @IsOptional() //optional interest rate
-  @IsNumber({},{message: 'Interest Rate should be a number'})
-  @Min(0, {message: 'Interest Rate must be a positive number'})
+  @IsNumber({}, { message: 'Interest Rate should be a number' })
+  @Min(0, { message: 'Interest Rate must be a positive number' })
   interestRate?: number;
 }
 

@@ -38,10 +38,10 @@ export class BankAccountController {
     );
   }
 
-  // Get all bank accounts for the currently authenticated user
+  // Get a specific bank account by its ID, only if it belongs to the authenticated user
   @Get()
   async getBankAccountsForUser(
-    @FredUser() user: User, // Get the currently authenticated user
+    @FredUser() user: User,
   ): Promise<BankAccountResponseDto[]> {
     return this.bankAccountService.getBankAccountsForUser(user.id);
   }

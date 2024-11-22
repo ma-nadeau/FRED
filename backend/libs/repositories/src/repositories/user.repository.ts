@@ -1,99 +1,96 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma.service";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
 import * as bcrypt from 'bcrypt'; // For password hashing
-import { UserDAO } from "@fred/transfer-objects/daos";
+import { UserDAO } from '@fred/transfer-objects/daos';
 
 @Injectable()
 export class UserRepository {
+  constructor(private readonly prisma: PrismaService) {}
 
-    constructor(private readonly prisma: PrismaService) {}
-
-    async findById(
-        userId: number,
-    ): Promise<UserDAO | null> {
-        const user = await this.prisma.user.findFirst({ where: { id: userId }, select: { id: true, name: true, email: true, age: true } });
-        return user ? {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            age: user.age
-        } : null;
-    }
-
-    async create(
-        name: string,
-        email: string,
-        age: number,
-        password: string,
-    ): Promise<UserDAO> {
-        return this.prisma.user.create({
-            data: {
-                name,
-                email,
-                age,
-                password,
-            },
-        });
-    }
-
-    async updateName(
-        id: number,
-        name: string,
-    ): Promise<UserDAO> {
-        return this.prisma.user.update({
-            where: { id },
-            data: { name },
-        });
-    }
-
-    async updatePassword(
-        id: number,
-        password: string,
-    ): Promise<UserDAO> {
-        return this.prisma.user.update({
-            where: { id },
-            data: { password },
-        });
-    }
-
-    async isEmailTaken(
-        email: string,
-    ): Promise<boolean> {
-        return Boolean(await this.prisma.user.findUnique({ where: { email } }));
-    }
-
-    async verifyPassword(
-        email: string,
-        password: string,
-    ): Promise<{
-      success: true;
-      user: Omit<UserDAO, 'password'>; // Omit password in the return type
-    } | {
-      success: false;
-    }> {
-        // Fetch user including the password (temporarily)
-        const user = await this.prisma.user.findFirst({
-          where: { email },
-          select: { id: true, name: true, email: true, age: true, password: true }, // Include password temporarily
-        });
-      
-        if (!user) {
-          return { success: false };
+  async findById(userId: number): Promise<UserDAO | null> {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId },
+      select: { id: true, name: true, email: true, age: true },
+    });
+    return user
+      ? {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          age: user.age,
         }
-      
-        // Compare hashed password using bcrypt
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-          return { success: false };
-        }
-      
-        // Destructure password to exclude it from the response
-        const { password: _, ...userWithoutPassword } = user;
+      : null;
+  }
 
-        return { success: true, user: userWithoutPassword };
+  async create(
+    name: string,
+    email: string,
+    age: number,
+    password: string,
+  ): Promise<UserDAO> {
+    return this.prisma.user.create({
+      data: {
+        name,
+        email,
+        age,
+        password,
+      },
+    });
+  }
+
+  async updateName(id: number, name: string): Promise<UserDAO> {
+    return this.prisma.user.update({
+      where: { id },
+      data: { name },
+    });
+  }
+
+  async updatePassword(id: number, password: string): Promise<UserDAO> {
+    return this.prisma.user.update({
+      where: { id },
+      data: { password },
+    });
+  }
+
+  async isEmailTaken(email: string): Promise<boolean> {
+    return Boolean(await this.prisma.user.findUnique({ where: { email } }));
+  }
+
+  async verifyPassword(
+    email: string,
+    password: string,
+  ): Promise<
+    | {
+        success: true;
+        user: Omit<UserDAO, 'password'>; // Omit password in the return type
+      }
+    | {
+        success: false;
+      }
+  > {
+    // Fetch user including the password (temporarily)
+    const user = await this.prisma.user.findFirst({
+      where: { email },
+      select: { id: true, name: true, email: true, age: true, password: true }, // Include password temporarily
+    });
+
+    if (!user) {
+      return { success: false };
     }
 
-    async getUserCount(): Promise<number> {
-        return this.prisma.user.count();
+    // Compare hashed password using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return { success: false };
     }
+
+    // Destructure password to exclude it from the response
+    const { password: _, ...userWithoutPassword } = user;
+
+    return { success: true, user: userWithoutPassword };
+  }
+
+  async getUserCount(): Promise<number> {
+    return this.prisma.user.count();
+  }
 }

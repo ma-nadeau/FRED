@@ -63,9 +63,6 @@ importers:
       tailwindcss:
         specifier: ^3.4.14
         version: 3.4.14(ts-node@10.9.2(@types/node@20.16.13)(typescript@5.6.3))
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.16.13)(typescript@5.6.3)
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
@@ -2265,7 +2262,6 @@ snapshots:
   '@date-io/moment@2.17.0':
     dependencies:
       '@date-io/core': 2.17.0
-
 
   '@emotion/babel-plugin@11.12.0':
     dependencies:

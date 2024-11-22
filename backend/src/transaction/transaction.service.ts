@@ -25,6 +25,7 @@ export class TransactionService {
       where: { id: accountId },
       include: {
         account: {
+          // Include MainAccount records associated with the BankAccount
           select: {
             userId: true,
           },
@@ -180,6 +181,7 @@ export class TransactionService {
       where: { id: transactionId },
       include: { account: true },
     });
+
     if (
       !transaction ||
       !transaction.account ||
