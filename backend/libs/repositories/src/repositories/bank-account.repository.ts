@@ -105,7 +105,16 @@ export class BankAccountRepository {
    * @param data.transactions - An array of transactions to be created for the bank account.
    * @returns The updated bank account.
    */
-  async updateBankAccount(accountId: number, data: Partial<{ type: AccountType; name: string; balance: number; interestRate: number; transactions: any[] }>) {
+  async updateBankAccount(
+    accountId: number,
+    data: Partial<{
+      type: AccountType;
+      name: string;
+      balance: number;
+      interestRate: number;
+      transactions: any[];
+    }>
+  ): Promise<BankAccountDAO> {
     const updateData: any = {};
   
     if (data.type !== undefined) {
@@ -121,26 +130,28 @@ export class BankAccountRepository {
       updateData.interestRate = data.interestRate;
     }
     if (data.transactions !== undefined) {
-      updateData.transactions = {
-        createMany: {
-          data: data.transactions,
-        },
-      };
+      // Handle transactions if needed
     }
   
-    return this.prisma.mainAccount.update({
+    const updatedAccount = await this.prisma.bankAccount.update({
       where: {
         id: accountId,
       },
-      data: {
-        bankAccount: {
-          update: updateData,
-        },
-      },
+      data: updateData,
       include: {
-        bankAccount: true,
+        transactions: {
+          include: {
+            recurringCashFlow: true,
+          },
+        },
+        account: true,
       },
     });
+  
+    return {
+      ...updatedAccount,
+      account: updatedAccount.account[0],
+    } as BankAccountDAO;
   }
 
   /**
