@@ -311,7 +311,7 @@ const AccountFlowGraph: React.FC = () => {
         <Button onClick={() => handleTimeRangeChange("All")}>All</Button>
       </ButtonGroup>
 
-      {/* Add the Create Bank Account button */}
+      {/* Create Bank Account button */}
       <Box sx={{ mt: 2 }}>
         <Link href="/create_bank_account" passHref>
           <Button
@@ -319,6 +319,18 @@ const AccountFlowGraph: React.FC = () => {
             color="primary"
           >
             Create Bank Account
+          </Button>
+        </Link>
+      </Box>
+
+      {/* Modify Bank Account button */}
+      <Box sx={{ mt: 2 }}>
+        <Link href="/modify_bank_account" passHref>
+          <Button
+            variant="contained"
+            color="primary"
+          >
+            Modify Bank Account
           </Button>
         </Link>
       </Box>

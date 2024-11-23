@@ -57,16 +57,15 @@ export class BankAccountController {
   // Update an existing bank account for the currently authenticated user
   @Put(':id')
   async updateBankAccount(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateBankAccountDto: UpdateBankAccountDto,
-    @FredUser() user: User, // Get the currently authenticated user
+    @FredUser() user: User,
   ): Promise<BankAccountResponseDto> {
-    const updatedAccount = await this.bankAccountService.updateBankAccount(
-      user.id,
+    return this.bankAccountService.updateBankAccount(
       id,
+      user.id,
       updateBankAccountDto,
     );
-    return updatedAccount;
   }
 
   // Delete a specific bank account by its ID, only if it belongs to the authenticated user

@@ -92,18 +92,27 @@ export class BankAccountService {
    * @param userId - The ID of the user.
    * @returns The bank account as a response DTO.
    */
-  async updateBankAccount(userId: number, accountId: number, updateBankAccountDto: UpdateBankAccountDto): Promise<BankAccountResponseDto> {
-    // Fetch the bank account by account ID
-    const account = await this.getBankAccountById(userId, accountId);
+  async updateBankAccount(
+    accountId: number,
+    userId: number,
+    updateBankAccountDto: UpdateBankAccountDto
+  ): Promise<BankAccountResponseDto> {
+    // Fetch the bank account DAO
+    const account = await this.bankAccountRepository.getBankAccountById(accountId);
     if (!account) {
-      throw new NotFoundException('Bank account not found');
+      throw new NotFoundException('Bank account not found.');
     }
-    // Update the bank account with the provided data
-    Object.assign(account, updateBankAccountDto);
-    // Save the updated bank account
-    await this.bankAccountRepository.updateBankAccount(accountId, account);
-    // Return the updated bank account
-    return account;
+    // Verify ownership
+    if (account.account?.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this bank account.');
+    }
+    // Update bank account
+    const updatedAccount = await this.bankAccountRepository.updateBankAccount(
+      accountId,
+      updateBankAccountDto
+    );
+    // Map to response DTO
+    return this.mapToBankAccountResponseDto(updatedAccount);
   }
 
   /**
