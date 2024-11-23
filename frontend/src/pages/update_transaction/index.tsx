@@ -1,71 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Grid, Typography, Paper, Box, Snackbar, MenuItem } from '@mui/material';
+import {
+    TextField,
+    Button,
+    Grid,
+    Typography,
+    Paper,
+    Box,
+    Snackbar,
+    MenuItem,
+    SvgIcon,
+} from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import http from '@fred/lib/http';
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { useRouter } from 'next/router';
+import http from '@fred/lib/http';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
-interface BankAccount {
-    id: number;
-    name: string;
-    balance: number;
-}
+function UpdateTransactionForm() {
+    const router = useRouter();
+    const { id } = router.query;
 
-function AddTransactionForm() {
+    // state variables
     const [description, setDescription] = useState('');
     const [transactionType, setTransactionType] = useState('');
     const [category, setCategory] = useState('');
     const [date, setDate] = useState<Date | null>(null);
     const [amount, setAmount] = useState('');
-    const [accountId, setAccountId] = useState('');
-    const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState('');
 
-    // Fetch the user's bank accounts on component mount
+    // fetch existing transaction data
     useEffect(() => {
-        http('GET', '/bank-accounts')
-            .then((response) => {
-                setBankAccounts(response.data); // Data will already be filtered by the backend
-            })
-            .catch((error) => {
-                console.error('Error fetching bank accounts:', error);
-                setMessage('Failed to fetch bank accounts.');
-                setOpen(true);
-            });
-    }, []);
+        if (id) {
+            http('GET', `/transactions/${id}`)
+                .then((response) => {
+                    const transaction = response.data;
+                    setDescription(transaction.description);
+                    setTransactionType(transaction.type);
+                    setCategory(transaction.category);
+                    setDate(new Date(transaction.transactionAt));
+                    setAmount(transaction.amount.toString());
+                    console.log('Response:', response);
+                })
+                .catch((error) => {
+                    console.error('Error fetching transaction:', error);
+                    setMessage('Error loading transaction data');
+                    setOpen(true);
+                });
+        }
+    }, [id]);
 
-
-
-    const handleAddTransaction = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleUpdateTransaction = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        const payload = {
+        console.log('Update Transaction form submitted');
+        http('PUT', `/transactions/${id}`, {
             description,
             type: transactionType,
             category,
             transactionAt: date,
-            amount: Number(amount),
-            accountId,
-        };
-
-        http('POST', '/transactions', payload)
-            .then(() => {
-                window.location.href = '/'; // Redirect to the home page or another page
+            amount: Number(amount)
+        })
+            .then((response) => {
+                console.log('Response:', response);
+                window.location.href = '/';
             })
             .catch((error) => {
-                console.error('Error adding transaction:', error);
+                console.error('Error:', error);
+                let errorMessage = 'Modifying transaction failed. Please try again.';
 
-                const errorMessage =
-                    error.response?.data?.message === 'Transaction is already saved.'
-                        ? 'Transaction is already saved.'
-                        : 'Failed to add transaction. Please try again.';
+                if (Array.isArray(error.response?.data?.message)) {
+                    const validationErrors = error.response.data.message;
+                    errorMessage = validationErrors.map((err: any) => Object.values(err.constraints).join(', ')).join(' ');
+                } else {
+                    errorMessage = error.response?.data?.message || errorMessage;
+                }
 
                 setMessage(errorMessage);
                 setOpen(true);
             });
     };
-
-
 
     return (
         <Grid container component="main" sx={{ height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
@@ -94,9 +108,9 @@ function AddTransactionForm() {
                     }}
                 >
                     <Typography component="h1" variant="h5">
-                        Add Transaction
+                        Modify Transaction
                     </Typography>
-                    <Box component="form" noValidate onSubmit={handleAddTransaction} sx={{ mt: 1 }}>
+                    <Box component="form" noValidate onSubmit={handleUpdateTransaction} sx={{ mt: 1 }}>
                         <TextField
                             margin="normal"
                             required
@@ -122,7 +136,7 @@ function AddTransactionForm() {
                             <MenuItem value="DEPOSIT">Deposit</MenuItem>
                             <MenuItem value="WITHDRAWAL">Withdrawal</MenuItem>
                         </TextField>
-                        <TextField
+                        {<TextField
                             margin="normal"
                             required
                             select
@@ -142,23 +156,6 @@ function AddTransactionForm() {
                             <MenuItem value="MISCELLANEOUS">Other</MenuItem>
                             <MenuItem value="SALARY">Salary</MenuItem>
                             <MenuItem value="OUTINGS">Outings</MenuItem>
-                        </TextField>
-                        {<TextField
-                            margin="normal"
-                            required
-                            select
-                            fullWidth
-                            id="accountId"
-                            label="Bank Account"
-                            name="accountId"
-                            value={accountId}
-                            onChange={(e) => setAccountId(e.target.value)}
-                        >
-                            {bankAccounts.map((account: BankAccount) => (
-                                <MenuItem key={account.id} value={account.id}>
-                                    {account.name} (Balance: ${account.balance.toFixed(2)})
-                                </MenuItem>
-                            ))}
                         </TextField>}
                         <DatePicker
                             label="Date"
@@ -183,7 +180,7 @@ function AddTransactionForm() {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Add Transaction
+                            Modify Transaction
                         </Button>
                     </Box>
                 </Box>
@@ -192,12 +189,12 @@ function AddTransactionForm() {
     );
 }
 
-export default function AddTransactionPage() {
+export default function UpdateTransactionPage() {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Box sx={{ p: 2 }}>
-                <AddTransactionForm />
+                <UpdateTransactionForm />
             </Box>
         </LocalizationProvider>
     );
-}
+} 
