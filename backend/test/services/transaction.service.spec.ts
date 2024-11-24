@@ -195,7 +195,7 @@ describe('TransactionService', () => {
       expect(mockPrisma.transaction.delete).not.toHaveBeenCalled();
     });
 
-    it('should throw NotFoundException when user does not own the transaction', async () => {
+    it('should throw ForbiddenException when user does not own the transaction', async () => {
       // mock finding the transaction but with different user ID
       mockPrisma.transaction.findUnique.mockResolvedValue({
         id: transactionId,
@@ -207,7 +207,7 @@ describe('TransactionService', () => {
 
       await expect(
         service.deleteTransaction(transactionId, userId)
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(ForbiddenException);
 
       // verify delete was never called
       expect(mockPrisma.transaction.delete).not.toHaveBeenCalled();

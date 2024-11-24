@@ -247,14 +247,12 @@ export class TransactionService {
       where: { id: transactionId },
       include: { account: true },
     });
-    if (
-      !transaction ||
-      !transaction.account ||
-      transaction.account.id !== userId
-    ) {
-      throw new ForbiddenException(
-        'You do not have access to this transaction.',
-      );
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found.');
+    }
+
+    if (!transaction.account || transaction.account.id !== userId) {
+      throw new ForbiddenException('You do not have access to this transaction.');
     }
 
     await this.prisma.transaction.delete({
