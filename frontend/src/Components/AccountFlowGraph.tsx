@@ -278,11 +278,27 @@ const AccountFlowGraph: React.FC = () => {
       <BarChart
         xAxis={[{ scaleType: "band", data: labels }]}
         series={[
-          { data: incomeData, label: "Income", color: "green" },
-          { data: expenseData, label: "Expenses", color: "red" },
+          {
+            data: incomeData,
+            label: "Income",
+            color: "#66bb6a", // Adjusted green tone
+          },
+          {
+            data: expenseData,
+            label: "Expenses",
+            color: "#e57373", // Subtle red tone
+          },
         ]}
         width={500}
         height={300}
+        sx={{
+          border: "1px solid #e0e0e0",
+          borderRadius: "16px",
+          backgroundColor: "#fafafa",
+          padding: "8px",
+          boxShadow: "0 4px 4px rgba(0, 0, 0, 0.1)",
+        }}
+        borderRadius={10}
       />
 
       {/* Line Chart for cumulative balance */}
@@ -299,10 +315,25 @@ const AccountFlowGraph: React.FC = () => {
             {
               data: cumulativeData.map((d) => d.y),
               label: "Balance Over Time",
+              color: "#1976d2", // Blue tone
             },
           ]}
           width={500}
           height={300}
+          sx={{
+            border: "1px solid #e0e0e0", // Add a border around the chart
+            borderRadius: "16px", // Smooth rounded corners
+            backgroundColor: "#fff", // White background for clarity
+            padding: "10px", // Add padding around the chart
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+            "& .MuiLegend-root": {
+              backgroundColor: "#ffffff", // Legend background
+              border: "1px solid #e0e0e0", // Legend border
+              borderRadius: "100px", // Rounded corners for legend
+              padding: "4px", // Add padding inside legend
+              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for legend
+            },
+          }}
         />
       )}
 
