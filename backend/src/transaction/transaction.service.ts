@@ -15,7 +15,9 @@ import { CreateTransactionDto, TransactionResponseDto, UpdateTransactionDto } fr
 
 @Injectable()
 export class TransactionService {
-  private prisma = new PrismaClient();
+  // private prisma = new PrismaClient();
+  constructor(private prisma: PrismaClient) { }  // Use constructor injection
+
 
   async createTransaction(
     userId: number,
@@ -29,7 +31,6 @@ export class TransactionService {
       where: { id: accountId },
       include: {
         account: {
-          // Include MainAccount records associated with the BankAccount
           select: {
             userId: true,
           },
@@ -174,37 +175,6 @@ export class TransactionService {
     return this.mapToTransactionResponseDto(transaction);
   }
 
-  /**
-   * Retrieves a specific transaction by its ID for a user.
-   * @param transactionId - The ID of the transaction.
-   * @param userId - The ID of the user.
-   * @returns The transaction as a response DTO.
-   */
-  // async getTransactionById(
-  //   transactionId: number,
-  //   userId: number,
-  // ): Promise<TransactionResponseDto> {
-  //   const transaction = await this.prisma.transaction.findUnique({
-  //     where: { id: transactionId },
-  //   });
-
-  //   if (!transaction) {
-  //     throw new NotFoundException('Transaction not found.');
-  //   }
-
-  //   const account = await this.prisma.bankAccount.findUnique({
-  //     where: { id: transaction.accountId },
-  //   });
-
-  //   if (!account || account.id !== userId) {
-  //     throw new ForbiddenException(
-  //       'You do not have access to this transaction.',
-  //     );
-  //   }
-
-  //   return this.mapToTransactionResponseDto(transaction);
-  // }
-
 
   /**
    * Updates a transaction by its ID for a user.
@@ -231,7 +201,7 @@ export class TransactionService {
     });
 
     if (!transaction) {
-      throw new NotFoundException('Transaction not found.');
+      throw new ForbiddenException('Transaction not found.');
     }
 
     // Verify account ownership via MainAccount
@@ -279,7 +249,6 @@ export class TransactionService {
       where: { id: transactionId },
       include: { account: true },
     });
-
     if (
       !transaction ||
       !transaction.account ||

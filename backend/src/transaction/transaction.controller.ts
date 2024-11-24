@@ -7,14 +7,14 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
-  HttpStatus, 
+  HttpStatus,
   Get,
   HttpException,
   Put,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
-// import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
-// import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/transaction-response.dto';
 import { FredUser } from '../session/auth.decorator';
 import { User } from '@prisma/client';
 import { SessionGuard } from '../session/session.guard';
@@ -46,18 +46,13 @@ export class TransactionController {
     @Param('id') id: string,
     @Body() updateTransactionDto: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
-    try {
-      return await this.transactionService.updateTransaction(
-        parseInt(id),
-        user.id,
-        updateTransactionDto,
-      );
-    } catch (error) {
-      throw new HttpException(
-        { statusCode: HttpStatus.BAD_REQUEST, message: error.message },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // try {
+    return await this.transactionService.updateTransaction(
+      parseInt(id),
+      user.id,
+      updateTransactionDto,
+    );
+
   }
 
   // Get a specific transaction by its ID, only if it belongs to the authenticated user
@@ -72,6 +67,8 @@ export class TransactionController {
         user.id,
       );
     } catch (error) {
+
+
       throw new HttpException(
         { statusCode: HttpStatus.BAD_REQUEST, message: error.message },
         HttpStatus.BAD_REQUEST,
