@@ -1,3 +1,4 @@
+// backend/src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -57,4 +58,4 @@ import { TradingAccountService } from './trading/trading-account.service';
     TradingAccountService,
   ],
 })
-export class AppModule {}
+export class AppModule { }

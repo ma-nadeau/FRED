@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionCategory, PrismaClient, TransactionType } from '@prisma/client';
+import { PrismaService } from '@fred/repositories/prisma.service';
 import { ForbiddenException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { TransactionService } from '../../src/transaction/transaction.service';
 import { CreateTransactionDto, TransactionResponseDto, UpdateTransactionDto } from '@fred/transfer-objects/dtos/transaction.dto';
@@ -27,7 +28,7 @@ describe('TransactionService', () => {
       providers: [
         TransactionService,
         {
-          provide: PrismaClient,
+          provide: PrismaService,
           useValue: mockPrisma,
         },
       ],

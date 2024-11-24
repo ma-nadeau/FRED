@@ -16,9 +16,10 @@ import { TradingTransactionResponseDto } from '@fred/transfer-objects/dtos/trans
   ],
   exports: [
     RepositoriesService,
+    PrismaService,
     UserRepository,
     BankAccountRepository,
     TradingAccountRepository
   ],
 })
-export class RepositoriesModule {}
+export class RepositoriesModule { }

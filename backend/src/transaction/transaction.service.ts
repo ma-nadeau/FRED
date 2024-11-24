@@ -7,6 +7,7 @@ import {
 import { PrismaClient } from '@prisma/client';
 import { BankAccountResponseDto } from '@fred/transfer-objects/dtos/bank-account';
 import { CreateTransactionDto, TransactionResponseDto, UpdateTransactionDto } from '@fred/transfer-objects/dtos/transaction.dto';
+import { PrismaService } from '@fred/repositories/prisma.service';
 
 
 
@@ -14,7 +15,7 @@ import { CreateTransactionDto, TransactionResponseDto, UpdateTransactionDto } fr
 @Injectable()
 export class TransactionService {
   // private prisma = new PrismaClient();
-  constructor(private prisma: PrismaClient) { }  // Use constructor injection
+  constructor(private prisma: PrismaService) { }
 
 
   async createTransaction(
