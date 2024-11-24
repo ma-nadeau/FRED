@@ -12,15 +12,22 @@ import {
   Typography,
   SelectChangeEvent,
 } from "@mui/material";
-import Link from 'next/link';
-import {
-  exampleAccountFlowData,
-  Transaction,
-  BankAccount,
-} from "../types/AccountFlowData"; // Import the example data
-import http from '@fred/lib/http';
+import Link from "next/link";
+import http from "@fred/lib/http";
 
+// Define the types locally:
+type Transaction = {
+  id: number;
+  amount: number;
+  type: "DEPOSIT" | "WITHDRAWAL";
+  transactionAt: string; // ISO date string
+};
 
+type BankAccount = {
+  id: number;
+  name: string;
+  transactions: Transaction[];
+};
 
 const AccountFlowGraph: React.FC = () => {
   const [timeRange, setTimeRange] = useState<string>("Last Month");
@@ -29,16 +36,45 @@ const AccountFlowGraph: React.FC = () => {
   );
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [expenses, setExpenses] = useState<Transaction[]>([]);
 
   useEffect(() => {
-    setIsLoggedIn(window.localStorage.getItem('token')!==null);
+    setIsLoggedIn(window.localStorage.getItem("token") !== null);
   }, []);
 
-  // Get all transactions from the exampleAccountFlowData
-  const transactions = exampleAccountFlowData.bankAccounts.flatMap(
-    (account) => account.transactions
-  );
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchBankAccounts();
+    }
+  }, [isLoggedIn]);
 
+  const fetchBankAccounts = () => {
+    http("GET", "/bank-accounts")
+      .then((response) => {
+        if (response.data) {
+          setBankAccounts(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching bank accounts:", error);
+      });
+  };
+
+  useEffect(() => {
+    const newExpenses: Transaction[] = [];
+    bankAccounts.forEach((bankAccount) => {
+      bankAccount.transactions.forEach((transaction) => {
+        if (transaction.type === "WITHDRAWAL") {
+          newExpenses.push(transaction);
+        }
+      });
+    });
+    setExpenses(newExpenses);
+  }, [bankAccounts]);
+
+  // Get all transactions from the current user
+  const transactions = bankAccounts.flatMap((account) => account.transactions);
 
   // Utility function to get transactions for a specific account or all accounts
   const getTransactionsForAccount = (
@@ -48,9 +84,8 @@ const AccountFlowGraph: React.FC = () => {
       return transactions;
     }
     return (
-      exampleAccountFlowData.bankAccounts.find(
-        (account) => account.id === accountId
-      )?.transactions || []
+      bankAccounts.find((account) => account.id === accountId)?.transactions ||
+      []
     );
   };
 
@@ -71,7 +106,9 @@ const AccountFlowGraph: React.FC = () => {
   };
 
   // Function to filter transactions based on the selected time range and sort them by date
-  const filterTransactionsByTimeRange = (accountId: number | "all"): Transaction[] => {
+  const filterTransactionsByTimeRange = (
+    accountId: number | "all"
+  ): Transaction[] => {
     const accountTransactions = getTransactionsForAccount(accountId);
     const startDate = getStartDateForRange(timeRange);
 
@@ -81,23 +118,35 @@ const AccountFlowGraph: React.FC = () => {
         const transactionDate = new Date(transaction.transactionAt);
         return transactionDate >= startDate;
       })
-      .sort((a, b) => new Date(a.transactionAt).getTime() - new Date(b.transactionAt).getTime()); // Ensure transactions are sorted by date
+      .sort(
+        (a, b) =>
+          new Date(a.transactionAt).getTime() -
+          new Date(b.transactionAt).getTime()
+      ); // Ensure transactions are sorted by date
   };
 
   // Compute cumulative balance over time for line chart
-  const computeCumulativeBalance = (transactions: Transaction[]): { x: number; y: number }[] => {
+  const computeCumulativeBalance = (
+    transactions: Transaction[]
+  ): { x: number; y: number }[] => {
     let cumulativeBalance = 0;
     const dataPoints: { x: number; y: number }[] = [];
 
     transactions.forEach((transaction) => {
       const transactionDate = new Date(transaction.transactionAt).getTime(); // Timestamp for x-axis
-      cumulativeBalance += transaction.type === "DEPOSIT" ? transaction.amount : -transaction.amount;
+      cumulativeBalance +=
+        transaction.type === "DEPOSIT"
+          ? transaction.amount
+          : -transaction.amount;
       dataPoints.push({ x: transactionDate, y: cumulativeBalance });
     });
 
     // Add current date as last point on line chart, with the same balance as the last transaction
     const currentDate = new Date().getTime();
-    if (dataPoints.length > 0 && dataPoints[dataPoints.length - 1].x !== currentDate) {
+    if (
+      dataPoints.length > 0 &&
+      dataPoints[dataPoints.length - 1].x !== currentDate
+    ) {
       dataPoints.push({ x: currentDate, y: cumulativeBalance });
     }
 
@@ -165,7 +214,10 @@ const AccountFlowGraph: React.FC = () => {
   const cashFlowPercentage = (cashFlow / totalIncome) * 100 || 0; // Prevent division by zero
 
   // Get cumulative balance only if a specific account is selected (not "All accounts")
-  const cumulativeData = selectedAccountId !== "all" ? computeCumulativeBalance(filteredTransactions) : [];
+  const cumulativeData =
+    selectedAccountId !== "all"
+      ? computeCumulativeBalance(filteredTransactions)
+      : [];
 
   const handleTimeRangeChange = (range: string) => {
     setTimeRange(range);
@@ -176,58 +228,30 @@ const AccountFlowGraph: React.FC = () => {
   };
 
   const handleDeleteClick = () => {
-    setConfirmDelete(true); 
+    setConfirmDelete(true);
   };
 
-
   const handleConfirmDelete = () => {
-
-    http('DELETE', `bank-accounts/account/${selectedAccountId}`)
-      .then(async (response) => {})
+    http("DELETE", `bank-accounts/account/${selectedAccountId}`)
+      .then(async (response) => {
+        setConfirmDelete(false);
+        setSelectedAccountId("all");
+        fetchBankAccounts(); // Refresh bank accounts
+      })
       .catch((error) => {
-        console.error('Error:', error);
-        let errorMessage = 'Delete Account Failed. Please try again.';
+        console.error("Error:", error);
+        let errorMessage = "Delete Account Failed. Please try again.";
         if (error.response?.data?.message) {
           errorMessage = error.response.data.message;
         }
         console.error(errorMessage);
-        alert(errorMessage); // Add alert for the user
+        alert(errorMessage); // Alert the user
       });
   };
 
-  
   const handleCancelDelete = () => {
-    setConfirmDelete(false); 
+    setConfirmDelete(false);
   };
-
-  const getExpenses = () => {
-    const expenses = new Array();
-    //const [data, setData] = useState<any[]>([]);
-    if(isLoggedIn){
-      http('GET', '/bank-accounts')
-        .then(async (response) => {
-            if(response.data){
-              response.data.forEach( (bankAccount:any) => {
-                if(bankAccount.transactions.length>0){
-                  bankAccount.transactions.forEach( (transaction:any) => {
-                    if(transaction.type === "WITHDRAWAL"){
-                      expenses.push(transaction);
-                    }
-                  })
-                }
-              });
-            }
-            else{
-              console.error('No bank accounts exist')
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    }
-    console.log(expenses);
-    return expenses;
-  }
 
   return (
     <Box>
@@ -237,12 +261,16 @@ const AccountFlowGraph: React.FC = () => {
       <Select
         value={selectedAccountId}
         onChange={handleAccountChange}
-        sx={{ mb: 2, color: "text.primary", backgroundColor: "background.paper" }}
+        sx={{
+          mb: 2,
+          color: "text.primary",
+          backgroundColor: "background.paper",
+        }}
       >
         <MenuItem value="all">All Accounts</MenuItem>
-        {exampleAccountFlowData.bankAccounts.map((account: BankAccount) => (
+        {bankAccounts.map((account: BankAccount) => (
           <MenuItem key={account.id} value={account.id}>
-        {account.name}
+            {account.name}
           </MenuItem>
         ))}
       </Select>
@@ -262,7 +290,7 @@ const AccountFlowGraph: React.FC = () => {
         <LineChart
           xAxis={[
             {
-              scaleType: 'time',
+              scaleType: "time",
               data: cumulativeData.map((d) => d.x),
               valueFormatter: (value) => new Date(value).toLocaleDateString(), // Format timestamp into readable date
             },
@@ -314,10 +342,7 @@ const AccountFlowGraph: React.FC = () => {
       {/* Create Bank Account button */}
       <Box sx={{ mt: 2 }}>
         <Link href="/create_bank_account" passHref>
-          <Button
-            variant="contained"
-            color="primary"
-          >
+          <Button variant="contained" color="primary">
             Create Bank Account
           </Button>
         </Link>
@@ -326,10 +351,7 @@ const AccountFlowGraph: React.FC = () => {
       {/* Modify Bank Account button */}
       <Box sx={{ mt: 2 }}>
         <Link href="/modify_bank_account" passHref>
-          <Button
-            variant="contained"
-            color="primary"
-          >
+          <Button variant="contained" color="primary">
             Modify Bank Account
           </Button>
         </Link>
@@ -347,7 +369,9 @@ const AccountFlowGraph: React.FC = () => {
           </Button>
         ) : (
           <Box>
-            <Typography>Are you sure you want to delete this bank account?</Typography>
+            <Typography>
+              Are you sure you want to delete this bank account?
+            </Typography>
             <Button
               variant="contained"
               color="error"
@@ -366,24 +390,20 @@ const AccountFlowGraph: React.FC = () => {
           </Box>
         )}
       </Box>
-      
+
       {/* Manage expenses button */}
-      {isLoggedIn && 
+      {isLoggedIn && (
         <Box sx={{ mt: 2 }}>
           <Link href="/expenses_collection" passHref>
-            <Button
-              variant="contained"
-              color="primary"
-            >
+            <Button variant="contained" color="primary">
               Manage Expenses
             </Button>
           </Link>
-          
-          <h1>{getExpenses()}</h1>
+          <h1>{expenses.length} Expenses</h1>
+          {/* Optionally, map over expenses to display details */}
         </Box>
-      }
+      )}
     </Box>
-
   );
 };
 
