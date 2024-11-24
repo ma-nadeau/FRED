@@ -3,8 +3,7 @@ import { TransactionCategory, PrismaClient, TransactionType } from '@prisma/clie
 import { ForbiddenException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { TransactionService } from '../../src/transaction/transaction.service';
 import { CreateTransactionDto, TransactionResponseDto, UpdateTransactionDto } from '@fred/transfer-objects/dtos/transaction.dto';
-import { UpdateBankAccountDto } from '@fred/transfer-objects/dtos/bank-account';
-import { UpdateTradingAccountDto } from '@fred/transfer-objects/dtos/trading-account';
+
 
 
 const mockPrisma = {
@@ -16,6 +15,7 @@ const mockPrisma = {
     findFirst: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
+    delete: jest.fn(),
   },
 };
 
@@ -101,14 +101,14 @@ describe('TransactionService', () => {
       transactionAt: new Date(),
     };
 
-    it('should throw ForbiddenException when the transaction does not exist', async () => {
+    it('should throw NotFoundException when the transaction does not exist', async () => {
       // Mock the prisma findUnique to return null (transaction not found)
       mockPrisma.transaction.findUnique.mockResolvedValue(null);
 
       // Test that the service throws NotFoundException
       await expect(
         service.updateTransaction(transactionId, userId, updateTransactionDto)
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toThrow(NotFoundException);
 
 
       // Verify that update was never called since transaction wasn't found
@@ -127,25 +127,124 @@ describe('TransactionService', () => {
         transactionAt: new Date(),
       });
 
-      // Mock the bank account with a different user ID
+      // mock the bank account with a different user ID
       mockPrisma.bankAccount.findUnique.mockResolvedValue({
         id: 1,
         account: [
           {
-            userId: 999 // Different user ID than the one making the request
+            userId: 999 // different user ID than the one making the request
           }
         ]
       });
 
-      // Test that the service throws ForbiddenException
+      // test that the service throws ForbiddenException
       await expect(
         service.updateTransaction(transactionId, userId, updateTransactionDto)
       ).rejects.toThrow(ForbiddenException);
 
 
-
       // Verify that update was never called since permission was denied
       expect(mockPrisma.transaction.update).not.toHaveBeenCalled();
+
+
+    });
+  });
+
+  // delete
+  describe('deleteTransaction', () => {
+    const userId = 1;
+    const transactionId = 1;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should successfully delete a transaction when user has permission', async () => {
+      // mock finding the transaction with its account
+      mockPrisma.transaction.findUnique.mockResolvedValue({
+        id: transactionId,
+        accountId: 1,
+        account: {
+          id: userId // This matches the userId, indicating ownership
+        }
+      });
+
+      // mock successful deletion
+      mockPrisma.transaction.delete.mockResolvedValue(undefined);
+
+      // execute delete and expect no errors
+      await expect(
+        service.deleteTransaction(transactionId, userId)
+      ).resolves.not.toThrow();
+
+      // verify delete was called with correct parameters
+      expect(mockPrisma.transaction.delete).toHaveBeenCalledWith({
+        where: { id: transactionId }
+      });
+    });
+
+    it('should throw NotFoundException when transaction does not exist', async () => {
+      // mock transaction not found
+      mockPrisma.transaction.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.deleteTransaction(transactionId, userId)
+      ).rejects.toThrow(NotFoundException);
+
+      // verify delete was never called
+      expect(mockPrisma.transaction.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException when user does not own the transaction', async () => {
+      // mock finding the transaction but with different user ID
+      mockPrisma.transaction.findUnique.mockResolvedValue({
+        id: transactionId,
+        accountId: 1,
+        account: {
+          id: 999 // different from userId
+        }
+      });
+
+      await expect(
+        service.deleteTransaction(transactionId, userId)
+      ).rejects.toThrow(NotFoundException);
+
+      // verify delete was never called
+      expect(mockPrisma.transaction.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException when transaction has no associated account', async () => {
+      // mock finding the transaction but with no account
+      mockPrisma.transaction.findUnique.mockResolvedValue({
+        id: transactionId,
+        accountId: 1,
+        account: null
+      });
+
+      await expect(
+        service.deleteTransaction(transactionId, userId)
+      ).rejects.toThrow(ForbiddenException);
+
+      // verify delete was never called
+      expect(mockPrisma.transaction.delete).not.toHaveBeenCalled();
+    });
+
+    it('should handle database errors during deletion', async () => {
+      // Mock finding the transaction
+      mockPrisma.transaction.findUnique.mockResolvedValue({
+        id: transactionId,
+        accountId: 1,
+        account: {
+          id: userId
+        }
+      });
+
+      // mock deletion failure
+      mockPrisma.transaction.delete.mockRejectedValue(new Error('Database error'));
+
+      await expect(
+        service.deleteTransaction(transactionId, userId)
+      ).rejects.toThrow('Database error');
     });
   });
 })

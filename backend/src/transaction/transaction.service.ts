@@ -5,8 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-// import { CreateTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-transaction.dto';
-// import { TransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/transaction-response.dto';
 import { BankAccountResponseDto } from '@fred/transfer-objects/dtos/bank-account';
 import { CreateTransactionDto, TransactionResponseDto, UpdateTransactionDto } from '@fred/transfer-objects/dtos/transaction.dto';
 
@@ -64,7 +62,7 @@ export class TransactionService {
       },
     });
 
-    console.log('Existing Transaction:', existingTransaction);
+    // console.log('Existing Transaction:', existingTransaction);
 
     if (existingTransaction) {
       throw new BadRequestException('Transaction is already saved.');
@@ -201,7 +199,7 @@ export class TransactionService {
     });
 
     if (!transaction) {
-      throw new ForbiddenException('Transaction not found.');
+      throw new NotFoundException('Transaction not found.');
     }
 
     // Verify account ownership via MainAccount

@@ -212,12 +212,12 @@ describe('TransactionController', () => {
       };
 
       service.updateTransaction.mockRejectedValue(
-        new ForbiddenException('Transaction not found')
+        new NotFoundException('Transaction not found')
       );
 
       await expect(
         controller.updateTransaction(user, transactionId, updateTransactionDto)
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toThrow(NotFoundException);
 
       expect(service.updateTransaction).toHaveBeenCalledWith(
         parseInt(transactionId),

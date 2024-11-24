@@ -11,8 +11,6 @@ import {
   Get,
   HttpException,
   Put,
-  NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { FredUser } from '../session/auth.decorator';
