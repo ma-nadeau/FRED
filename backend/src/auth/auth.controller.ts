@@ -34,4 +34,9 @@ export class AuthController {
     this.logger.log(`Fetching details for user: ${user.email}`);
     return user;
   }
+
+  @Get('/chat-context')
+  async chatContext(@FredUser() user: UserDAO): Promise<string> {
+    return this.authService.chatContext(user);
+  }
 }

@@ -25,6 +25,8 @@ import {
   CreditCard,
   History,
   Person,
+  ShowChart,
+  Receipt,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -41,11 +43,11 @@ export default function NavigationWrapper({ children }: NavigationWrapperProps) 
   const pathname = usePathname();
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
-    { text: 'Accounts', icon: <AccountBalance />, path: '/accounts' },
-    { text: 'Transactions', icon: <History />, path: '/transactions' },
-    { text: 'Payments', icon: <Payment />, path: '/payments' },
-    { text: 'Cards', icon: <CreditCard />, path: '/cards' },
+    { text: 'Dashboard', icon: <Dashboard />, path: '/' },
+    { text: 'Bank Accounts', icon: <AccountBalance />, path: '/bank-accounts' },
+    { text: 'Transactions', icon: <Payment />, path: '/add_transaction' },
+    { text: 'Trading', icon: <ShowChart />, path: '/trading' },
+    { text: 'Expenses', icon: <Receipt />, path: '/expenses_collection' },
     { text: 'Profile', icon: <Person />, path: '/profile' },
     { text: 'Settings', icon: <Settings />, path: '/settings' },
   ];

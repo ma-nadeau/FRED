@@ -1,3 +1,4 @@
+'use client';
 // view_expenses.tsx
 
 import React, { useState, useEffect } from 'react';

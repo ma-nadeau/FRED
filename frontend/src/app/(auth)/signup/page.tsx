@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import { TextField, Button, Grid, Typography, Paper, Box, Snackbar } from '@mui/material';
 import http from '@fred/lib/http';

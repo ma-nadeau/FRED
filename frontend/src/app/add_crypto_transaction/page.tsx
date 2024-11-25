@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   TextField,
@@ -14,14 +16,15 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Autocomplete } from '@mui/material';
 import http from '@fred/lib/http';
-import { fetchStockSymbolSuggestions } from '../../services/financeApi';
+import { fetchCryptoSymbolSuggestions } from '../../services/financeApi';
+import { tr } from 'date-fns/locale';
 
 interface SymbolOption {
   label: string;
   value: string;
 }
 
-function AddTradeStockTransactionForm() {
+function AddCryptoTradeTransactionForm() {
   const [symbol, setSymbol] = useState('');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
@@ -29,7 +32,7 @@ function AddTradeStockTransactionForm() {
   const [transactionType, setTransactionType] = useState<'ADD' | 'REMOVE'>('ADD');
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [symbolOptions, setSymbolOptions] = useState<SymbolOption[]>([]);
+  const [symbolOptions, setSymbolOptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSymbolSearch = async (query: string) => {
@@ -38,40 +41,37 @@ function AddTradeStockTransactionForm() {
       return;
     }
     setIsLoading(true);
-    const suggestions = await fetchStockSymbolSuggestions(query);
-    const formattedSuggestions = suggestions.map((suggestion) => ({
-      label: `${suggestion.symbol} - ${suggestion.name}`,
-      value: suggestion.symbol,
-    }));
-    setSymbolOptions(formattedSuggestions);
+    const suggestions = await fetchCryptoSymbolSuggestions(query);
+    setSymbolOptions(suggestions);
     setIsLoading(false);
   };
 
   const handleAddTransaction = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('Add Transaction form submitted');
+    console.log('Add Trading Transaction form submitted');
     const requestBody = {
       symbol,
       quantity: Number(quantity),
       purchasePrice: transactionType === 'ADD' ? Number(price) : null,
       sellPrice: transactionType === 'REMOVE' ? Number(price) : null,
-      transactionAt: transactionAt instanceof Date ? transactionAt : new Date(transactionAt),
+      transactionAt,
       tradingAccountId: 1,
+
     };
 
     http('POST', '/trade-transactions', requestBody)
       .then(() => {
-        setMessage('Trade stock transaction created successfully');
+        setMessage('Crypto trade transaction created successfully');
         setOpen(true);
       })
       .catch((error) => {
         console.error('Error:', error);
-        let errorMessage = 'Failed to create trade stock transaction. Please try again.';
+        let errorMessage = 'Failed to create crypto trade transaction. Please try again.';
 
         if (Array.isArray(error.response?.data?.message)) {
           const validationErrors = error.response.data.message;
           errorMessage = validationErrors
-            .map((err: { constraints: { [key: string]: string } }) => Object.values(err.constraints).join(', '))
+            .map((err: any) => Object.values(err.constraints).join(', '))
             .join(' ');
         } else {
           errorMessage = error.response?.data?.message || errorMessage;
@@ -101,28 +101,21 @@ function AddTradeStockTransactionForm() {
           }}
         >
           <Typography component="h1" variant="h5">
-            Add Trade Stock Transaction
+            Add Crypto Trade Transaction
           </Typography>
           <Box component="form" noValidate onSubmit={handleAddTransaction} sx={{ mt: 1 }}>
             <Autocomplete
               freeSolo
               options={symbolOptions}
-              getOptionLabel={(option) =>
-                typeof option === 'string' ? option : option.label
-              }
+              getOptionLabel={(option) => option}
               inputValue={symbol}
               onInputChange={(event, newInputValue) => {
-                const trimmedValue = newInputValue.split('-')[0].trim();
-                setSymbol(trimmedValue);
+                setSymbol(newInputValue.trim());
                 handleSymbolSearch(newInputValue);
               }}
               onChange={(event, newValue) => {
                 if (newValue) {
-                  if (typeof newValue === 'string') {
-                    setSymbol(newValue.split('-')[0].trim());
-                  } else if (newValue.value && newValue.value !== symbol) {
-                    setSymbol(newValue.value.trim());
-                  }
+                  setSymbol(newValue);
                 }
               }}
               renderInput={(params) => (
@@ -132,7 +125,7 @@ function AddTradeStockTransactionForm() {
                   required
                   fullWidth
                   id="symbol"
-                  label="Symbol"
+                  label="Crypto Symbol"
                   name="symbol"
                 />
               )}
@@ -169,10 +162,10 @@ function AddTradeStockTransactionForm() {
             />
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
-              label="Transaction Date"
-              value={transactionAt}
-              onChange={(newValue) => setTransactionAt(newValue ? new Date(newValue) : null)}
-              renderInput={(params) => <TextField {...params} fullWidth required margin="normal" />}
+                label="Transaction Date"
+                value={transactionAt}
+                onChange={(newValue) => setTransactionAt(newValue)}
+                renderInput={(params) => <TextField {...params} fullWidth required margin="normal" />}
               />
             </LocalizationProvider>
             <Button
@@ -181,7 +174,7 @@ function AddTradeStockTransactionForm() {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              {transactionType === 'ADD' ? 'Add Shares' : 'Remove Shares'}
+              {transactionType === 'ADD' ? 'Add Crypto' : 'Remove Crypto'}
             </Button>
           </Box>
         </Box>
@@ -190,11 +183,11 @@ function AddTradeStockTransactionForm() {
   );
 }
 
-export default function AddTradeStockTransactionPage() {
+export default function AddCryptoTradeTransactionPage() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box sx={{ p: 2 }}>
-        <AddTradeStockTransactionForm />
+        <AddCryptoTradeTransactionForm />
       </Box>
     </LocalizationProvider>
   );

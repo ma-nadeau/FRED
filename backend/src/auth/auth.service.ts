@@ -76,4 +76,8 @@ export class AuthService {
   async getUserCount(): Promise<number> {
     return this.userRepository.getUserCount();
   }
+
+  async chatContext(user: UserDAO): Promise<string> {
+    return this.userRepository.chatContext(user);
+  }
 }

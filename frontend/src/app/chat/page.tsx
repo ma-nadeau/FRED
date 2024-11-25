@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import { Box, TextField, Button, Paper, Typography, Container, CircularProgress } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
