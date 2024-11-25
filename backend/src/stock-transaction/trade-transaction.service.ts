@@ -6,6 +6,7 @@ import {
 import { PrismaClient } from '@prisma/client';
 import { CreateTradingTransactionDto } from '@fred/transfer-objects/dtos/transaction/create-trading-transaction.dto';
 import { TradingTransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/trading-transaction.dto';
+import { UpdateTradingTransactionDto } from '@fred/transfer-objects/dtos/transaction/update-trading-transaction.dto';
 
 @Injectable()
 export class TradeTransactionService {
@@ -69,7 +70,7 @@ export class TradeTransactionService {
   async getTradeTransactionById(
     tradeTransactionId: number,
     userId: number,
-  ): Promise<CreateTradingTransactionDto> {
+  ): Promise<TradingTransactionResponseDto> {
     const tradeTransaction = await this.prisma.tradeStockTransaction.findUnique(
       {
         where: { id: tradeTransactionId },
@@ -124,4 +125,62 @@ export class TradeTransactionService {
       where: { id: tradeTransactionId },
     });
   }
+
+  async updateTradeTransaction(
+    tradeTransactionId: number,
+    userId: number,
+    updateTradeTransactionDto: UpdateTradingTransactionDto,
+  ): Promise<TradingTransactionResponseDto> {
+    const { id, symbol, transactionAt, quantity, purchasePrice } =
+      updateTradeTransactionDto;
+    console.log("in service updateTradeTransaction");
+    // Verify account ownership
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        accounts: true,
+      },
+    });
+    
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const tradeTransaction = await this.prisma.tradeStockTransaction.findUnique({
+      where: { id: id },
+      include: { tradingAccount: true },
+  });
+
+    if (!tradeTransaction) {
+      throw new NotFoundException('Trade transaction not found.');
+    }
+    console.log("accounts", user.accounts);
+    const tradingAcc = user.accounts.find(
+      (account) => account.tradingAccountId === tradeTransaction.tradingAccountId,
+    );
+    console.log("tradingAcc", tradingAcc);
+    if (!tradingAcc) {
+      throw new NotFoundException(
+        'Trading account not found or does not belong to the user.',
+      );
+    }
+
+    if (!tradeTransaction || tradingAcc === undefined || tradingAcc === null) {
+      throw new ForbiddenException(
+        'You do not have access to this transaction.',
+      );
+    }
+
+  // Create the trade transaction
+  const updatedTradeTransaction = await this.prisma.tradeStockTransaction.update({
+    where: { id: tradeTransactionId },
+    data: updateTradeTransactionDto
+  });
+
+  return this.mapToTradeTransactionResponseDto({
+    ...updatedTradeTransaction,
+    tradingAccount: { id: tradingAcc.tradingAccountId },
+  });
+}
 }
