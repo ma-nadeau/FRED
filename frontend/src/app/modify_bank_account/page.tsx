@@ -14,7 +14,7 @@ import {
   FormControl,
   SvgIcon,
 } from '@mui/material';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import http from '@fred/lib/http';
 
