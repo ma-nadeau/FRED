@@ -4,7 +4,9 @@ import { TradeTransactionService } from '../../src/stock-transaction/trade-trans
 import { SessionGuard } from '../../src/session/session.guard';
 import { User } from '@prisma/client';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, HttpException, NotFoundException } from '@nestjs/common';
+import { UpdateTradingTransactionDto } from '@fred/transfer-objects/dtos/transaction/update-trading-transaction.dto';
+import { TradingTransactionResponseDto } from '@fred/transfer-objects/dtos/transaction/trading-transaction.dto';
 
 describe('TradeTransactionController', () => {
   let controller: TradeTransactionController;
@@ -84,5 +86,135 @@ describe('TradeTransactionController', () => {
         user.id,
       );
     });
+  });
+
+  describe('updateStockTransaction', () => {
+    const user: User = {
+      id: 1,
+      name: 'Test User',
+      email: 'testuser@example.com',
+      age: 30,
+      password: 'hashedpassword',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  
+    it ('Successfully update stock information', async () => {
+      const transactionId = '1'; // Define the transactionId as string since controller expects string
+        const updateTradingTransactionDto: UpdateTradingTransactionDto = {
+          id: 1,
+          symbol: 'AAPL',
+          purchasePrice: 150,
+          quantity: 10,
+          transactionAt: new Date(),
+        };
+  
+        const mockResponse: TradingTransactionResponseDto = {
+          id: parseInt(transactionId),
+          tradingAccountId: 1,
+          symbol: 'AAPL',
+          purchasePrice: 150,
+          quantity: 10,
+          transactionAt: new Date(),
+          tradingAccount: {
+            id: 1,
+          },
+        };
+  
+        service.updateTradeTransaction.mockResolvedValue(mockResponse);
+  
+        const result = await controller.updateStockTransaction(transactionId, updateTradingTransactionDto, user);
+  
+        expect(result).toEqual(mockResponse);
+        expect(service.updateTradeTransaction).toHaveBeenCalledWith(
+          parseInt(transactionId),
+          user.id,
+          updateTradingTransactionDto
+        );
+    });
+  
+      it('Unsuccessfully update stock information because stock transaction does not exist', async () => {
+          const transactionId = String(Number.MAX_SAFE_INTEGER);
+          const updateTradingTransactionDto: UpdateTradingTransactionDto = {
+          id: 1,
+          symbol: 'AAPL',
+          purchasePrice: 150,
+          quantity: 10,
+          transactionAt: new Date(),
+          };
+      
+          service.updateTradeTransaction.mockRejectedValue(new NotFoundException('Transaction not found'));
+      
+          await expect(controller.updateStockTransaction(transactionId, updateTradingTransactionDto, user)).rejects.toThrowError(HttpException);
+          expect(service.updateTradeTransaction).toHaveBeenCalledWith(
+          parseInt(transactionId),
+          user.id,
+          updateTradingTransactionDto
+          );
+      });
+  });
+  
+  describe('getStockTransaction', () => {
+      const user: User = {
+          id: 1,
+          name: 'Test User',
+          email: 'testuser@example.com',
+          age: 30,
+          password: 'hashedpassword',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+  
+        it ('Successfully get stock information', async () => {
+      const transactionId = '1'; // Define the transactionId as string since controller expects string
+        const updateTradingTransactionDto: UpdateTradingTransactionDto = {
+          id: 1,
+          symbol: 'AAPL',
+          purchasePrice: 150,
+          quantity: 10,
+          transactionAt: new Date(),
+        };
+  
+        const mockResponse: TradingTransactionResponseDto = {
+          id: parseInt(transactionId),
+          tradingAccountId: 1,
+          symbol: 'AAPL',
+          purchasePrice: 150,
+          quantity: 10,
+          transactionAt: new Date(),
+          tradingAccount: {
+            id: 1,
+          },
+        };
+  
+        service.getTradeTransactionById.mockResolvedValue(mockResponse);
+  
+        const result = await controller.getStockTransaction(transactionId, user);
+  
+        expect(result).toEqual(mockResponse);
+        expect(service.getTradeTransactionById).toHaveBeenCalledWith(
+          parseInt(transactionId),
+          user.id,
+        );
+      });
+  
+      it('Unsuccessfully get stock information because stock transaction does not exist', async () => {
+          const transactionId = String(Number.MAX_SAFE_INTEGER);
+          const updateTradingTransactionDto: UpdateTradingTransactionDto = {
+          id: 1,
+          symbol: 'AAPL',
+          purchasePrice: 150,
+          quantity: 10,
+          transactionAt: new Date(),
+          };
+      
+          service.getTradeTransactionById.mockRejectedValue(new NotFoundException('Transaction not found'));
+      
+          await expect(controller.getStockTransaction(transactionId, user)).rejects.toThrowError(HttpException);
+          expect(service.getTradeTransactionById).toHaveBeenCalledWith(
+          parseInt(transactionId),
+          user.id,
+          );
+      });
   });
 });
