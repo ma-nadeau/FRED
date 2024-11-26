@@ -219,67 +219,84 @@ describe('BankAccountRepository', () => {
   });
 
   describe('updateBankAccount', () => {
-    it('should update an existing bank account', async () => {
-      const mockAccount = {
-        id: 1,
-        userId: 1,
-        name: 'Updated Test Account',
-        type: AccountType.SAVINGS_TFSA,
-        institution: 'Test Bank',
-        balance: 150,
-        interestRate: 5,
-      };
-
-      prismaService.mainAccount.update.mockResolvedValue(mockAccount as any);
-
-      const updateData = {
-        name: 'Updated Test Account',
-        type: AccountType.SAVINGS_TFSA,
-        institution: 'Test Bank',
-        balance: 150,
-        interestRate: 5,
-        transactions: [],
-      };
-
-      const result = await repository.updateBankAccount(1, updateData);
-
-      expect(result).toEqual(mockAccount);
-      expect(prismaService.mainAccount.update).toHaveBeenCalledWith({
-        where: { id: 1 },
-        data: {
-          bankAccount: {
-            update: {
-              type: updateData.type,
-              name: updateData.name,
-              balance: new Prisma.Decimal(updateData.balance).toNumber(),
-              interestRate: new Prisma.Decimal(updateData.interestRate).toNumber(),
-              transactions: {
-                createMany: {
-                  data: updateData.transactions,
-                },
-              },
-            },
-          },
-        },
-        include: {
-          bankAccount: true,
-        },
-      });
-    });
-
-    it('should throw NotFoundException if the bank account does not exist', async () => {
-      prismaService.mainAccount.update.mockRejectedValue(new NotFoundException('Bank account not found'));
-
+    it('should update the bank account and return the updated BankAccountDAO', async () => {
+      const accountId = 1;
       const updateData = {
         name: 'Updated Account',
         type: AccountType.SAVINGS_TFSA,
-        institution: 'Test Bank',
-        balance: 1000.0,
-        interestRate: 1.5,
-        transactions: [],
+        balance: 2000,
+        interestRate: 2.5,
       };
 
-      await expect(repository.updateBankAccount(1, updateData)).rejects.toThrow(NotFoundException);
+      const mockUpdatedAccount = {
+        id: accountId,
+        name: updateData.name,
+        type: updateData.type,
+        balance: updateData.balance,
+        interestRate: updateData.interestRate,
+        transactions: [],
+        account: [
+          {
+            id: 1,
+            userId: 1,
+            type: MainAccountType.BANK,
+            institution: 'Test Bank',
+          },
+        ],
+      };
+
+      prismaService.bankAccount.update.mockResolvedValue(mockUpdatedAccount as any);
+
+      const result = await repository.updateBankAccount(accountId, updateData);
+
+      expect(prismaService.bankAccount.update).toHaveBeenCalledWith({
+        where: { id: accountId },
+        data: {
+          type: updateData.type,
+          name: updateData.name,
+          balance: updateData.balance,
+          interestRate: updateData.interestRate,
+        },
+        include: {
+          transactions: {
+            include: {
+              recurringCashFlow: true,
+            },
+          },
+          account: true,
+        },
+      });
+
+      expect(result).toEqual({
+        ...mockUpdatedAccount,
+        account: mockUpdatedAccount.account[0],
+      } as BankAccountDAO);
+    });
+
+    it('should throw NotFoundException when the bank account does not exist', async () => {
+      const accountId = 999;
+      const updateData = {
+        name: 'Non-Existent Account',
+      };
+
+      prismaService.bankAccount.update.mockRejectedValue(new NotFoundException('Bank account not found.'));
+
+      await expect(repository.updateBankAccount(accountId, updateData)).rejects.toThrow(NotFoundException);
+
+      expect(prismaService.bankAccount.update).toHaveBeenCalledWith({
+        where: { id: accountId },
+        data: {
+          name: updateData.name,
+        },
+        include: {
+          transactions: {
+            include: {
+              recurringCashFlow: true,
+            },
+          },
+          account: true,
+        },
+      });
     });
   });
 
