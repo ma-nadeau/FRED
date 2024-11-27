@@ -18,6 +18,7 @@ import { Autocomplete } from '@mui/material';
 import http from '@fred/lib/http';
 import { fetchCryptoSymbolSuggestions } from '../../services/financeApi';
 import { tr } from 'date-fns/locale';
+import { useRouter } from 'next/navigation';
 
 interface SymbolOption {
   label: string;
@@ -34,6 +35,7 @@ function AddCryptoTradeTransactionForm() {
   const [message, setMessage] = useState('');
   const [symbolOptions, setSymbolOptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSymbolSearch = async (query: string) => {
     if (query.length < 1) {
@@ -49,13 +51,15 @@ function AddCryptoTradeTransactionForm() {
   const handleAddTransaction = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log('Add Trading Transaction form submitted');
+
+    const accountId = new URLSearchParams(window.location.search).get('accountId');
     const requestBody = {
       symbol,
       quantity: Number(quantity),
       purchasePrice: transactionType === 'ADD' ? Number(price) : null,
       sellPrice: transactionType === 'REMOVE' ? Number(price) : null,
       transactionAt,
-      tradingAccountId: 1,
+      tradingAccountId: accountId ? Number(accountId) : null,
 
     };
 
@@ -63,6 +67,7 @@ function AddCryptoTradeTransactionForm() {
       .then(() => {
         setMessage('Crypto trade transaction created successfully');
         setOpen(true);
+        router.push(`/view_stock_transactions?accountId=${accountId}`);
       })
       .catch((error) => {
         console.error('Error:', error);

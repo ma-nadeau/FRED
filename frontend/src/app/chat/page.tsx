@@ -149,7 +149,7 @@ export default function Chat() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ height: '100vh', py: 4 }}>
+    <Container maxWidth="md" sx={{ height: 'calc(100vh - 64px)', py: 4 }}>
       <Paper elevation={3} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
           {messages.map((message, index) => (

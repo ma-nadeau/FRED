@@ -157,7 +157,8 @@ function AddTransactionForm() {
                         >
                             {bankAccounts.map((account: BankAccount) => (
                                 <MenuItem key={account.id} value={account.id}>
-                                    {account.name} (Balance: ${account.balance.toFixed(2)})
+                                    {account.name} 
+                                    {/* (Balance: ${account.balance.toFixed(2)}) */}
                                 </MenuItem>
                             ))}
                         </TextField>}

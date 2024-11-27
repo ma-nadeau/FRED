@@ -19,12 +19,16 @@ export class TradeTransactionService {
     const { symbol, transactionAt, quantity, purchasePrice, tradingAccountId } =
       createTradeTransactionDto;
 
+    console.log("createTradeTransactionDto", createTradeTransactionDto);
+
     // Verify account ownership
     const account = await this.prisma.tradingAccount.findUnique({
       where: { id: tradingAccountId },
     });
 
-    if (!account || account.id !== userId) {
+    console.log("account", account);
+
+    if (!account) {
       throw new NotFoundException(
         'Bank account not found or does not belong to the user.',
       );

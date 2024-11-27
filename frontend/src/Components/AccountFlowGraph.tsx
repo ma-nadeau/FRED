@@ -254,186 +254,202 @@ const AccountFlowGraph: React.FC = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Select Account:
-      </Typography>
-      <Select
-        value={selectedAccountId}
-        onChange={handleAccountChange}
-        sx={{
-          mb: 2,
-          color: "text.primary",
-          backgroundColor: "background.paper",
-        }}
-      >
-        <MenuItem value="all">All Accounts</MenuItem>
-        {bankAccounts.map((account: BankAccount) => (
-          <MenuItem key={account.id} value={account.id}>
-            {account.name}
-          </MenuItem>
-        ))}
-      </Select>
+    <Box sx={{ maxWidth: 1200, margin: '0 auto', padding: 4 }}>
+      {/* Header Section */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4">
+            Account Overview
+          </Typography>
+          <Link href="/add_transaction" passHref>
+            <Button variant="contained" color="primary">
+              Add Transaction
+            </Button>
+          </Link>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 3 }}>
+          <Typography variant="subtitle1">Select Account:</Typography>
+          <Select
+            value={selectedAccountId}
+            onChange={handleAccountChange}
+            sx={{
+              minWidth: 200,
+              color: "text.primary",
+              backgroundColor: "background.paper",
+            }}
+          >
+            <MenuItem value="all">All Accounts</MenuItem>
+            {bankAccounts.map((account: BankAccount) => (
+              <MenuItem key={account.id} value={account.id}>
+                {account.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
 
-      <BarChart
-        xAxis={[{ scaleType: "band", data: labels }]}
-        series={[
-          {
-            data: incomeData,
-            label: "Income",
-            color: "#66bb6a", // Adjusted green tone
-          },
-          {
-            data: expenseData,
-            label: "Expenses",
-            color: "#e57373", // Subtle red tone
-          },
-        ]}
-        width={500}
-        height={300}
-        sx={{
-          border: "1px solid #e0e0e0",
-          borderRadius: "16px",
-          backgroundColor: "#fafafa",
-          padding: "8px",
-          boxShadow: "0 4px 4px rgba(0, 0, 0, 0.1)",
-        }}
-        borderRadius={10}
-      />
+        {/* Time Range Selection */}
+        <ButtonGroup
+          variant="contained"
+          aria-label="time range selection"
+        >
+          <Button onClick={() => handleTimeRangeChange("Last Month")}>
+            Last Month
+          </Button>
+          <Button onClick={() => handleTimeRangeChange("Last 6 Months")}>
+            Last 6 Months
+          </Button>
+          <Button onClick={() => handleTimeRangeChange("Last Year")}>
+            Last Year
+          </Button>
+          <Button onClick={() => handleTimeRangeChange("All")}>All</Button>
+        </ButtonGroup>
+      </Box>
 
-      {/* Line Chart for cumulative balance */}
-      {selectedAccountId !== "all" && (
-        <LineChart
-          xAxis={[
-            {
-              scaleType: "time",
-              data: cumulativeData.map((d) => d.x),
-              valueFormatter: (value) => new Date(value).toLocaleDateString(), // Format timestamp into readable date
-            },
-          ]}
-          series={[
-            {
-              data: cumulativeData.map((d) => d.y),
-              label: "Balance Over Time",
-              color: "#1976d2", // Blue tone
-            },
-          ]}
-          width={500}
-          height={300}
-          sx={{
-            border: "1px solid #e0e0e0", // Add a border around the chart
-            borderRadius: "16px", // Smooth rounded corners
-            backgroundColor: "#fff", // White background for clarity
-            padding: "10px", // Add padding around the chart
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-            "& .MuiLegend-root": {
-              backgroundColor: "#ffffff", // Legend background
-              border: "1px solid #e0e0e0", // Legend border
-              borderRadius: "100px", // Rounded corners for legend
-              padding: "4px", // Add padding inside legend
-              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for legend
-            },
-          }}
-        />
-      )}
+      {/* Charts Section */}
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, mb: 4 }}>
+        {/* Income/Expense Bar Chart */}
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>Income vs Expenses</Typography>
+          <BarChart
+            xAxis={[{ scaleType: "band", data: labels }]}
+            series={[
+              {
+                data: incomeData,
+                label: "Income",
+                color: "#66bb6a",
+              },
+              {
+                data: expenseData,
+                label: "Expenses",
+                color: "#e57373",
+              },
+            ]}
+            width={500}
+            height={300}
+            sx={{
+              border: "1px solid #e0e0e0",
+              borderRadius: "16px",
+              backgroundColor: "#fafafa",
+              padding: "8px",
+              boxShadow: "0 4px 4px rgba(0, 0, 0, 0.1)",
+            }}
+          />
+        </Box>
 
-      {/* Cash Flow Percentage Display */}
-      <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-        <Box>
+        {/* Balance Line Chart */}
+        {selectedAccountId !== "all" && (
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Balance Over Time</Typography>
+            <LineChart
+              xAxis={[{
+                scaleType: "time",
+                data: cumulativeData.map((d) => d.x),
+                valueFormatter: (value) => new Date(value).toLocaleDateString(),
+              }]}
+              series={[{
+                data: cumulativeData.map((d) => d.y),
+                label: "Balance Change Over Time",
+                color: "#1976d2",
+              }]}
+              width={500}
+              height={300}
+              sx={{
+                border: "1px solid #e0e0e0",
+                borderRadius: "16px",
+                backgroundColor: "#fff",
+                padding: "10px",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              }}
+            />
+          </Box>
+        )}
+      </Box>
+
+      {/* Cash Flow Section */}
+      <Box sx={{ 
+        mb: 4, 
+        p: 3, 
+        backgroundColor: 'background.paper',
+        borderRadius: 2,
+        boxShadow: 1
+      }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>Cash Flow Analysis</Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <span style={{ fontSize: "20px", fontWeight: "bold" }}>
             Cash Flow: {Math.abs(cashFlowPercentage).toFixed(2)}%
           </span>
-        </Box>
-        <Box sx={{ ml: 1 }}>
-          {cashFlow > 0 ? (
-            <span style={{ color: "green", fontSize: "24px" }}>⬆</span> // Green up arrow
-          ) : (
-            <span style={{ color: "red", fontSize: "24px" }}>⬇</span> // Red down arrow
-          )}
+          <Box sx={{ ml: 1 }}>
+            {cashFlow > 0 ? (
+              <span style={{ color: "green", fontSize: "24px" }}>⬆</span>
+            ) : (
+              <span style={{ color: "red", fontSize: "24px" }}>⬇</span>
+            )}
+          </Box>
         </Box>
       </Box>
 
-      <ButtonGroup
-        variant="contained"
-        aria-label="outlined primary button group"
-        sx={{ mt: 2 }}
-      >
-        <Button onClick={() => handleTimeRangeChange("Last Month")}>
-          Last Month
-        </Button>
-        <Button onClick={() => handleTimeRangeChange("Last 6 Months")}>
-          Last 6 Months
-        </Button>
-        <Button onClick={() => handleTimeRangeChange("Last Year")}>
-          Last Year
-        </Button>
-        <Button onClick={() => handleTimeRangeChange("All")}>All</Button>
-      </ButtonGroup>
-
-      {/* Create Bank Account button */}
-      <Box sx={{ mt: 2 }}>
+      {/* Actions Section */}
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+        gap: 2 
+      }}>
         <Link href="/create_bank_account" passHref>
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" fullWidth>
             Create Bank Account
           </Button>
         </Link>
-      </Box>
-
-      {/* Modify Bank Account button */}
-      <Box sx={{ mt: 2 }}>
+        
         <Link href="/modify_bank_account" passHref>
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" fullWidth>
             Modify Bank Account
           </Button>
         </Link>
-      </Box>
 
-      {/* Delete Bank Account button */}
-      <Box sx={{ mt: 2 }}>
         {!confirmDelete ? (
           <Button
             variant="contained"
             color="secondary"
             onClick={handleDeleteClick}
+            fullWidth
           >
             Delete Bank Account
           </Button>
         ) : (
-          <Box>
-            <Typography>
+          <Box sx={{ gridColumn: '1 / -1' }}>
+            <Typography sx={{ mb: 1 }}>
               Are you sure you want to delete this bank account?
             </Typography>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleConfirmDelete}
-              sx={{ mr: 1 }}
-            >
-              Yes, Delete
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleCancelDelete}
-            >
-              Cancel
-            </Button>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleConfirmDelete}
+              >
+                Yes, Delete
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleCancelDelete}
+              >
+                Cancel
+              </Button>
+            </Box>
+          </Box>
+        )}
+
+        {isLoggedIn && (
+          <Box sx={{ gridColumn: '1 / -1' }}>
+            <Link href="/expenses_collection" passHref>
+              <Button variant="contained" color="primary" fullWidth>
+                Manage Expenses ({expenses.length})
+              </Button>
+            </Link>
           </Box>
         )}
       </Box>
-
-      {/* Manage expenses button */}
-      {isLoggedIn && (
-        <Box sx={{ mt: 2 }}>
-          <Link href="/expenses_collection" passHref>
-            <Button variant="contained" color="primary">
-              Manage Expenses
-            </Button>
-          </Link>
-          <h1>{expenses.length} Expenses</h1>
-          {/* Optionally, map over expenses to display details */}
-        </Box>
-      )}
     </Box>
   );
 };

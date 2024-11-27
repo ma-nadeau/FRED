@@ -16,6 +16,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Autocomplete } from '@mui/material';
 import http from '@fred/lib/http';
 import { fetchStockSymbolSuggestions } from '../../services/financeApi';
+import { useRouter } from 'next/navigation';
 
 interface SymbolOption {
   label: string;
@@ -23,6 +24,7 @@ interface SymbolOption {
 }
 
 function AddTradeStockTransactionForm() {
+  const router = useRouter();
   const [symbol, setSymbol] = useState('');
   const [quantity, setQuantity] = useState('');
   const [price, setPrice] = useState('');
@@ -51,19 +53,22 @@ function AddTradeStockTransactionForm() {
   const handleAddTransaction = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log('Add Transaction form submitted');
+
+    const accountId = new URLSearchParams(window.location.search).get('accountId');
     const requestBody = {
       symbol,
       quantity: Number(quantity),
       purchasePrice: transactionType === 'ADD' ? Number(price) : null,
       sellPrice: transactionType === 'REMOVE' ? Number(price) : null,
       transactionAt: transactionAt instanceof Date ? transactionAt : new Date(transactionAt),
-      tradingAccountId: 1,
+      tradingAccountId: accountId ? Number(accountId) : null,
     };
 
     http('POST', '/trade-transactions', requestBody)
       .then(() => {
         setMessage('Trade stock transaction created successfully');
         setOpen(true);
+        router.push('/view_stock_transactions' + (accountId ? `?accountId=${accountId}` : ''));
       })
       .catch((error) => {
         console.error('Error:', error);

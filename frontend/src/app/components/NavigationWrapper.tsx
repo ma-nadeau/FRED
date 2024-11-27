@@ -27,6 +27,8 @@ import {
   Person,
   ShowChart,
   Receipt,
+  Assistant,
+  Logout,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -42,18 +44,20 @@ export default function NavigationWrapper({ children }: NavigationWrapperProps) 
   const theme = useTheme();
   const pathname = usePathname();
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  };
+
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/' },
-    { text: 'Bank Accounts', icon: <AccountBalance />, path: '/bank-accounts' },
-    { text: 'Transactions', icon: <Payment />, path: '/add_transaction' },
+    { text: 'Expenses', icon: <Receipt />, path: '/view_expenses' },
+    { text: 'AI Finance Assistant', icon: <Assistant />, path: '/chat' },
     { text: 'Trading', icon: <ShowChart />, path: '/trading' },
-    { text: 'Expenses', icon: <Receipt />, path: '/expenses_collection' },
-    { text: 'Profile', icon: <Person />, path: '/profile' },
-    { text: 'Settings', icon: <Settings />, path: '/settings' },
   ];
 
   const drawer = (
-    <Box>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
           fred
@@ -96,6 +100,25 @@ export default function NavigationWrapper({ children }: NavigationWrapperProps) 
             </ListItemButton>
           </ListItem>
         ))}
+      </List>
+      <Box sx={{ flexGrow: 1 }} />
+      <Divider />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={handleLogout}
+            sx={{
+              '&:hover': {
+                backgroundColor: theme.palette.action.hover,
+              },
+            }}
+          >
+            <ListItemIcon>
+              <Logout />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   );

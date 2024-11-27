@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { TransactionType, TransactionCategory } from '@prisma/client';
+import { TransactionType, TransactionCategory, TradeStockTransaction } from '@prisma/client';
 
 export class CreateTransactionDto {
   @IsNotEmpty()

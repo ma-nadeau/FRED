@@ -10,6 +10,7 @@ import {
   UpdateTradingAccountDto,
 } from '@fred/transfer-objects/dtos/trading-account';
 import { TradingAccountDAO } from '@fred/transfer-objects/trading-account.daos';
+import { TradeStockTransaction } from '@prisma/client';
 
 @Injectable()
 export class TradingAccountService {
@@ -137,5 +138,10 @@ export class TradingAccountService {
           transactionAt: trade.transactionAt.toISOString(),
         })) ?? [],
     };
+  }
+
+  async getTransactionsForTradingAccount(accountId: number): Promise<TradeStockTransaction[]> {
+    const transactions = await this.tradingAccountRepository.getTransactionsForTradingAccount(accountId);
+    return transactions;
   }
 }

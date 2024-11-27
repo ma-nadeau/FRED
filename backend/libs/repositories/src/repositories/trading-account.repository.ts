@@ -115,4 +115,11 @@ export class TradingAccountRepository {
 
     return account as TradingAccountDAO;
   }
+
+  async getTransactionsForTradingAccount(accountId: number): Promise<TradeStockTransaction[]> {
+    const transactions = await this.prisma.tradeStockTransaction.findMany({
+      where: { tradingAccountId: accountId },
+    });
+    return transactions;
+  }
 }

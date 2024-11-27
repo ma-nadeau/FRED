@@ -18,7 +18,7 @@ import {
   UpdateTradingAccountDto,
 } from '@fred/transfer-objects/dtos/trading-account';
 import { FredUser } from '../session/auth.decorator'; // Custom decorator to get the logged-in user from the session
-import { User } from '@prisma/client'; // Assuming User type from Prisma
+import { TradeStockTransaction, User } from '@prisma/client'; // Assuming User type from Prisma
 import { SessionGuard } from '../session/session.guard'; // Assuming this is the guard we are using
 
 @Controller('trading-accounts')
@@ -75,5 +75,13 @@ export class TradingAccountController {
     @FredUser() user: User, // Get the currently authenticated user
   ): Promise<void> {
     await this.tradingAccountService.deleteTradingAccount(accountId);
+  }
+
+  @Get(':accountId/transactions')
+  async getTransactionsForTradingAccount(
+    @Param('accountId', ParseIntPipe) accountId: number,
+    @FredUser() user: User, // Get the currently authenticated user
+  ): Promise<TradeStockTransaction[]> {
+    return this.tradingAccountService.getTransactionsForTradingAccount(accountId);
   }
 }

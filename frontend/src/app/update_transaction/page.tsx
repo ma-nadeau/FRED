@@ -13,14 +13,14 @@ import {
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import http from '@fred/lib/http';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 function UpdateTransactionForm() {
     const router = useRouter();
-    const { id } = router.query;
+    const { id } = useParams() as { id: string };
 
     // state variables
     const [description, setDescription] = useState('');
