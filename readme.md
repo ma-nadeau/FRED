@@ -2,6 +2,10 @@
 
 fred is a personal finance app built with nestjs and react.
 
+## Demo 
+
+[Video Demo](https://www.youtube.com/watch?v=lvusZ2e1wxU)
+
 ## Getting Started
 
 ### Prerequisites
